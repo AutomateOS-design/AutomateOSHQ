@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-950: #0B1120;
+  --color-navy-900: #172032;
+  --color-navy-800: #1E293B;
+  
+  --color-indigo-500: #6366F1;
+  --color-indigo-400: #818CF8;
+  --color-indigo-600: #4F46E5;
+  --color-indigo-950: #1E1B4B;
+  
+  --color-teal-500: #14B8A6;
+  --color-teal-400: #2DD4BF;
+  --color-amber-400: #FBBF24;
+  --color-amber-500: #F59E0B;
+  
+  --color-slate-50: #F8FAFC;
+  --color-slate-100: #F1F5F9;
+  --color-slate-200: #E2E8F0;
+  --color-slate-900: #0F172A;
+  --color-slate-600: #475569;
+  --color-slate-400: #94A3B8;
+  
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+  
+  /* Brand mappings */
+  --color-brand-primary: #6366F1;
+  --color-brand-primary-hover: #818CF8;
+  --color-brand-primary-active: #4F46E5;
+  --color-brand-primary-bg: #1E1B4B;
+  
+  --color-brand-teal: #14B8A6;
+  --color-brand-teal-hover: #2DD4BF;
+  --color-brand-amber: #FBBF24;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100svh;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: #F8FAFC;
+  color: #0F172A;
+  scroll-behavior: smooth;
+}

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" fill="none">
+  <defs>
+    <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#14B8A6"/>
+    </linearGradient>
+    <linearGradient id="nodeGlow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#818CF8"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Logo Mark: Stylized "A" with circuit nodes -->
+  <g transform="translate(8, 8)">
+    <!-- Left leg -->
+    <line x1="32" y1="64" x2="16" y2="8" stroke="#6366F1" stroke-width="3" stroke-linecap="round"/>
+    <!-- Right leg -->
+    <line x1="32" y1="64" x2="48" y2="8" stroke="#6366F1" stroke-width="3" stroke-linecap="round"/>
+    <!-- Crossbar -->
+    <line x1="20" y1="40" x2="44" y2="40" stroke="#14B8A6" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Circuit trace from left node -->
+    <path d="M16 8 L12 4" stroke="#6366F1" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <path d="M16 8 L20 4" stroke="#6366F1" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <!-- Circuit trace from right node -->
+    <path d="M48 8 L52 4" stroke="#6366F1" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+    <path d="M48 8 L44 4" stroke="#6366F1" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+
+    <!-- Apex node (AI/intelligence center) - glowing -->
+    <circle cx="32" cy="8" r="6" fill="url(#nodeGlow)" filter="url(#glow)"/>
+    <circle cx="32" cy="8" r="2.5" fill="white"/>
+
+    <!-- Left foot node -->
+    <circle cx="16" cy="60" r="3" fill="#6366F1" opacity="0.8"/>
+    <!-- Right foot node -->
+    <circle cx="48" cy="60" r="3" fill="#6366F1" opacity="0.8"/>
+
+    <!-- Crossbar node -->
+    <circle cx="32" cy="40" r="3" fill="#14B8A6" opacity="0.9"/>
+
+    <!-- Orbiting data particle 1 -->
+    <circle cx="24" cy="20" r="1.5" fill="#818CF8" opacity="0.7"/>
+    <!-- Orbiting data particle 2 -->
+    <circle cx="40" cy="20" r="1.5" fill="#14B8A6" opacity="0.7"/>
+    <!-- Orbiting data particle 3 -->
+    <circle cx="22" cy="50" r="1.5" fill="#6366F1" opacity="0.6"/>
+    <!-- Orbiting data particle 4 -->
+    <circle cx="42" cy="50" r="1.5" fill="#14B8A6" opacity="0.6"/>
+  </g>
+
+  <!-- Wordmark: AutomateOS -->
+  <g transform="translate(62, 20)">
+    <!-- "Automate" -->
+    <text x="0" y="28" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="700" fill="#0F172A" letter-spacing="-0.02em">Automate</text>
+    <!-- "OS" -->
+    <text x="172" y="28" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="700" fill="url(#brandGrad)" letter-spacing="-0.02em">OS</text>
+    <!-- Tagline -->
+    <text x="2" y="46" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" fill="#94A3B8" font-weight="400" letter-spacing="0.12em">WORKFLOW AUTOMATION · PRODUCTIZED</text>
+  </g>
+</svg>
