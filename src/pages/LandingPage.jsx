@@ -39,6 +39,7 @@ export default function LandingPage() {
       perfectFor: 'Agency owners drowning in manual lead transfer. E‑commerce brands tired of copy‑pasting orders into shipping. Real estate teams still entering client data by hand.',
       cta: 'Start automating →',
       popular: false,
+      stripeUrl: 'https://buy.stripe.com/dRm28r1b6e7S9Ok2MO5wI00',
     },
     {
       id: 'growth',
@@ -59,6 +60,7 @@ export default function LandingPage() {
       roi: 'One client automated their lead‑to‑invoice pipeline and recovered 35+ hours/week. Another cut invoice processing from 4 hours to 4 minutes.',
       cta: 'Scale smarter →',
       popular: true,
+      stripeUrl: 'https://buy.stripe.com/fZu8wPaLG3ted0w7345wI01',
     },
     {
       id: 'dedicated',
@@ -78,6 +80,7 @@ export default function LandingPage() {
       cta: 'Talk to our team →',
       alternative: 'Hiring a full‑time ops engineer costs $85,000–$120,000/year plus benefits. Dedicated Retainer gives you a whole team for less than $60,000/year. No recruiting. No PTO. No overhead.',
       popular: false,
+      stripeUrl: 'https://buy.stripe.com/5kQ9ATf1W9RCbWs5Z05wI02',
     }
   ];
 
@@ -357,6 +360,17 @@ export default function LandingPage() {
                   >
                     {plan.cta}
                   </Link>
+
+                  {/* Stripe Direct Checkout Link */}
+                  <a
+                    href={plan.stripeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 w-full inline-flex items-center justify-center py-2 px-4 rounded-lg font-semibold text-[10px] text-indigo-500 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 transition"
+                  >
+                    <svg className="w-3.5 h-3.5 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    Buy Direct with Stripe
+                  </a>
                 </div>
               </div>
             ))}

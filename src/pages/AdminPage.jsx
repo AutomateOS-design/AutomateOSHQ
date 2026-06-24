@@ -1,269 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
-  Zap, 
-  Users, 
-  Activity, 
-  Clock, 
-  DollarSign, 
-  CheckCircle, 
-  AlertCircle, 
-  ArrowLeft, 
-  Sliders, 
-  Sparkles, 
-  RefreshCw, 
-  Layers,
-  Check,
-  ChevronRight,
-  TrendingUp,
-  X,
-  Plus
+  Zap, Users, Activity, Clock, DollarSign, CheckCircle, AlertCircle,
+  ArrowLeft, Sliders, Sparkles, RefreshCw, Layers, Check, ChevronRight,
+  TrendingUp, X, Plus, LogOut
 } from 'lucide-react';
+import { fetchClients, fetchRequests, updateClient, updateRequest, fetchAdminStats } from '../api';
 
-const initializeState = () => {
-  if (!localStorage.getItem('automateos_clients')) {
-    const defaultClients = [
-      {
-        id: 'acme',
-        companyName: 'Acme Agency',
-        contactName: 'Sarah Jenkins',
-        email: 'sarah@acmeagency.com',
-        phone: '+1 (555) 321-9876',
-        plan: 'starter',
-        status: 'Active',
-        metrics: {
-          hoursSaved: 36,
-          executionsMTD: 450,
-          valueCreated: 1620
-        }
-      },
-      {
-        id: 'velocity',
-        companyName: 'Velocity Agency',
-        contactName: 'Marcus Thorne',
-        email: 'marcus@velocity.io',
-        phone: '+1 (555) 765-4321',
-        plan: 'growth',
-        status: 'Active',
-        metrics: {
-          hoursSaved: 96,
-          executionsMTD: 5800,
-          valueCreated: 4320
-        }
-      },
-      {
-        id: 'apex',
-        companyName: 'Apex Retail',
-        contactName: 'Elena Rostova',
-        email: 'elena@apexretail.com',
-        phone: '+1 (555) 987-6543',
-        plan: 'dedicated',
-        status: 'Active',
-        metrics: {
-          hoursSaved: 170,
-          executionsMTD: 11800,
-          valueCreated: 7650
-        }
-      }
-    ];
-    localStorage.setItem('automateos_clients', JSON.stringify(defaultClients));
-  }
-
-  if (!localStorage.getItem('automateos_requests')) {
-    const defaultRequests = [
-      {
-        id: 101,
-        clientId: 'acme',
-        clientName: 'Acme Agency',
-        title: 'Airtable to Slack Live Lead Sync',
-        type: 'CRM & Lead Management',
-        tools: ['Airtable', 'Slack', 'Zapier'],
-        status: 'Active',
-        hoursSaved: 24,
-        runs: 310,
-        updated: '1 hour ago',
-        submitted: '4 days ago'
-      },
-      {
-        id: 102,
-        clientId: 'acme',
-        clientName: 'Acme Agency',
-        title: 'Gmail Attachment Auto-Saver to Drive',
-        type: 'File Management',
-        tools: ['Gmail', 'Google Drive', 'Make.com'],
-        status: 'Active',
-        hoursSaved: 12,
-        runs: 140,
-        updated: 'Yesterday',
-        submitted: '3 days ago'
-      },
-      {
-        id: 103,
-        clientId: 'acme',
-        clientName: 'Acme Agency',
-        title: 'Airtable sync to Webflow multi-reference fields',
-        type: 'Reporting & Data Sync',
-        tools: ['Airtable', 'Webflow'],
-        status: 'Reviewing',
-        hoursSaved: 0,
-        runs: 0,
-        updated: 'Today',
-        submitted: 'Today'
-      },
-      {
-        id: 201,
-        clientId: 'velocity',
-        clientName: 'Velocity Agency',
-        title: 'AI Invoice Extractor & QuickBooks Sync',
-        type: 'AI & Document Processing',
-        tools: ['Gmail', 'GPT-4', 'QuickBooks', 'Airtable'],
-        status: 'Active',
-        hoursSaved: 48,
-        runs: 1240,
-        updated: '2 hours ago',
-        submitted: '6 days ago'
-      },
-      {
-        id: 202,
-        clientId: 'velocity',
-        clientName: 'Velocity Agency',
-        title: 'HubSpot to Slack Live Lead Qualifier',
-        type: 'Lead Nurturing',
-        tools: ['HubSpot', 'Zapier', 'Slack'],
-        status: 'Active',
-        hoursSaved: 36,
-        runs: 4820,
-        updated: 'Yesterday',
-        submitted: '5 days ago'
-      },
-      {
-        id: 203,
-        clientId: 'velocity',
-        clientName: 'Velocity Agency',
-        title: 'Customer Support Auto-Reply Draft Bot',
-        type: 'AI Agent / Automation',
-        tools: ['Gmail', 'Claude 3.5', 'Notion'],
-        status: 'Pending',
-        hoursSaved: 0,
-        runs: 0,
-        updated: '1 day ago',
-        submitted: '1 day ago'
-      },
-      {
-        id: 204,
-        clientId: 'velocity',
-        clientName: 'Velocity Agency',
-        title: 'Monthly PDF Analytics Compiler',
-        type: 'Reporting & Data Sync',
-        tools: ['Google Drive', 'Make.com', 'Slack'],
-        status: 'Active',
-        hoursSaved: 12,
-        runs: 82,
-        updated: '3 days ago',
-        submitted: '3 days ago'
-      },
-      {
-        id: 205,
-        clientId: 'velocity',
-        clientName: 'Velocity Agency',
-        title: 'Auto-reply to Instagram DMs via OpenAI integration',
-        type: 'AI Agent / Automation',
-        tools: ['Instagram', 'OpenAI'],
-        status: 'Reviewing',
-        hoursSaved: 0,
-        runs: 0,
-        updated: '3 days ago',
-        submitted: '3 days ago'
-      },
-      {
-        id: 301,
-        clientId: 'apex',
-        clientName: 'Apex Retail',
-        title: 'AI Invoice Extractor & QuickBooks Sync',
-        type: 'AI & Document Processing',
-        tools: ['Gmail', 'GPT-4', 'QuickBooks', 'Airtable'],
-        status: 'Active',
-        hoursSaved: 48,
-        runs: 1240,
-        updated: '2 hours ago',
-        submitted: '8 days ago'
-      },
-      {
-        id: 302,
-        clientId: 'apex',
-        clientName: 'Apex Retail',
-        title: 'HubSpot to Slack Live Lead Qualifier',
-        type: 'Lead Nurturing',
-        tools: ['HubSpot', 'Zapier', 'Slack'],
-        status: 'Active',
-        hoursSaved: 36,
-        runs: 4820,
-        updated: 'Yesterday',
-        submitted: '7 days ago'
-      },
-      {
-        id: 303,
-        clientId: 'apex',
-        clientName: 'Apex Retail',
-        title: 'Customer Support Auto-Reply Draft Bot',
-        type: 'AI Agent / Automation',
-        tools: ['Gmail', 'Claude 3.5', 'Notion'],
-        status: 'Active',
-        hoursSaved: 40,
-        runs: 2310,
-        updated: 'Yesterday',
-        submitted: '6 days ago'
-      },
-      {
-        id: 304,
-        clientId: 'apex',
-        clientName: 'Apex Retail',
-        title: 'Monthly PDF Analytics Compiler',
-        type: 'Reporting & Data Sync',
-        tools: ['Google Drive', 'Make.com', 'Slack'],
-        status: 'Active',
-        hoursSaved: 24,
-        runs: 110,
-        updated: '3 days ago',
-        submitted: '5 days ago'
-      },
-      {
-        id: 305,
-        clientId: 'apex',
-        clientName: 'Apex Retail',
-        title: 'Custom API Multi-Channel Inventory Sync',
-        type: 'Custom API Sync',
-        tools: ['Node.js', 'Stripe', 'Salesforce', 'Shopify'],
-        status: 'Active',
-        hoursSaved: 60,
-        runs: 8140,
-        updated: '4 days ago',
-        submitted: '4 days ago'
-      },
-      {
-        id: 306,
-        clientId: 'apex',
-        clientName: 'Apex Retail',
-        title: 'Automatic High-Priority Support Escalations',
-        type: 'Workflow Routing',
-        tools: ['Intercom', 'PagerDuty', 'Slack'],
-        status: 'Reviewing',
-        hoursSaved: 0,
-        runs: 0,
-        updated: 'Just now',
-        submitted: 'Just now'
-      }
-    ];
-    localStorage.setItem('automateos_requests', JSON.stringify(defaultRequests));
-  }
-};
+const AUTH_KEY = 'automateos_admin_token';
 
 export default function AdminPage() {
+  const navigate = useNavigate();
+  const [token, setToken] = useState(null);
+  const [authenticated, setAuthenticated] = useState(false);
+  const [checking, setChecking] = useState(true);
+
   const [clients, setClients] = useState([]);
   const [requests, setRequests] = useState([]);
+  const [stats, setStats] = useState(null);
   const [selectedClient, setSelectedClient] = useState(null);
-  const [activeTab, setActiveTab] = useState('clients'); // 'clients' | 'requests'
+  const [activeTab, setActiveTab] = useState('clients');
   const [statusMessage, setStatusMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   // Client editor state
   const [editPlan, setEditPlan] = useState('starter');
@@ -272,163 +30,130 @@ export default function AdminPage() {
   const [editExecutions, setEditExecutions] = useState(0);
   const [editValueCreated, setEditValueCreated] = useState(0);
 
-  // Load and refresh state
-  const loadState = () => {
-    initializeState();
-    const storedClients = JSON.parse(localStorage.getItem('automateos_clients') || '[]');
-    const storedRequests = JSON.parse(localStorage.getItem('automateos_requests') || '[]');
-    setClients(storedClients);
-    setRequests(storedRequests);
+  // Check auth on mount
+  useEffect(() => {
+    const stored = sessionStorage.getItem(AUTH_KEY);
+    if (!stored) {
+      navigate('/admin/login', { replace: true });
+      return;
+    }
+    setToken(stored);
+    setAuthenticated(true);
+    setChecking(false);
+  }, [navigate]);
+
+  // Load all data when authenticated
+  const loadData = async () => {
+    if (!token) return;
+    try {
+      setLoading(true);
+      const [clientsData, requestsData, statsData] = await Promise.all([
+        fetchClients(),
+        fetchRequests(),
+        fetchAdminStats(token)
+      ]);
+      setClients(clientsData);
+      setRequests(requestsData);
+      setStats(statsData);
+
+      // Keep selected client in sync
+      if (selectedClient) {
+        const updated = clientsData.find(c => c.id === selectedClient.id);
+        if (updated) setSelectedClient(updated);
+      }
+    } catch (err) {
+      if (err.message?.includes('401') || err.message?.includes('Unauthorized')) {
+        sessionStorage.removeItem(AUTH_KEY);
+        navigate('/admin/login', { replace: true });
+      }
+      showMessage('error', err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    loadState();
-
-    // Support real-time sync with other open client dashboard tabs!
-    const handleStorageChange = (e) => {
-      if (e.key === 'automateos_clients' || e.key === 'automateos_requests') {
-        loadState();
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+    if (authenticated && token) {
+      loadData();
+    }
+  }, [authenticated, token]);
 
   // Update editor values when selected client changes
   useEffect(() => {
     if (selectedClient) {
       setEditPlan(selectedClient.plan);
       setEditStatus(selectedClient.status || 'Active');
-      setEditHoursSaved(selectedClient.metrics?.hoursSaved || 0);
-      setEditExecutions(selectedClient.metrics?.executionsMTD || 0);
-      setEditValueCreated(selectedClient.metrics?.valueCreated || 0);
+      setEditHoursSaved(selectedClient.metrics?.hoursSaved || selectedClient.hoursSaved || 0);
+      setEditExecutions(selectedClient.metrics?.executionsMTD || selectedClient.executionsMTD || 0);
+      setEditValueCreated(selectedClient.metrics?.valueCreated || selectedClient.valueCreated || 0);
     }
   }, [selectedClient]);
 
-  const handleUpdateClientMetrics = (e) => {
+  const showMessage = (type, text) => {
+    setStatusMessage({ type, text });
+    setTimeout(() => setStatusMessage(null), 4000);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem(AUTH_KEY);
+    navigate('/admin/login', { replace: true });
+  };
+
+  const handleUpdateClientMetrics = async (e) => {
     e.preventDefault();
-    if (!selectedClient) return;
+    if (!selectedClient || !token) return;
 
-    const updatedClients = clients.map(c => {
-      if (c.id === selectedClient.id) {
-        return {
-          ...c,
-          plan: editPlan,
-          status: editStatus,
-          metrics: {
-            hoursSaved: Number(editHoursSaved),
-            executionsMTD: Number(editExecutions),
-            valueCreated: Number(editValueCreated)
-          }
-        };
-      }
-      return c;
-    });
-
-    localStorage.setItem('automateos_clients', JSON.stringify(updatedClients));
-    setClients(updatedClients);
-    
-    // Clear selection or show feedback
-    const newlyUpdated = updatedClients.find(c => c.id === selectedClient.id);
-    setSelectedClient(newlyUpdated);
-
-    setStatusMessage({
-      type: 'success',
-      text: `Successfully updated ${selectedClient.companyName} configuration!`
-    });
-
-    // Notify other components via storage event dispatch (local)
-    window.dispatchEvent(new Event('storage'));
-
-    setTimeout(() => setStatusMessage(null), 3000);
-  };
-
-  const handleUpdateRequestStatus = (requestId, newStatus) => {
-    let assignedHours = 0;
-    let assignedRuns = 0;
-
-    // Default stats to give when transitioning a request to Active
-    if (newStatus === 'Active') {
-      assignedHours = 12;
-      assignedRuns = 150;
-    }
-
-    const updatedRequests = requests.map(r => {
-      if (r.id === requestId) {
-        return {
-          ...r,
-          status: newStatus,
-          hoursSaved: newStatus === 'Active' ? assignedHours : r.hoursSaved,
-          runs: newStatus === 'Active' ? assignedRuns : r.runs,
-          updated: 'Just now'
-        };
-      }
-      return r;
-    });
-
-    localStorage.setItem('automateos_requests', JSON.stringify(updatedRequests));
-    setRequests(updatedRequests);
-
-    // If activated, let's also automatically increment the client's metrics!
-    if (newStatus === 'Active') {
-      const targetRequest = requests.find(r => r.id === requestId);
-      if (targetRequest) {
-        const updatedClients = clients.map(c => {
-          if (c.id === targetRequest.clientId) {
-            const currentHours = c.metrics?.hoursSaved || 0;
-            const currentRuns = c.metrics?.executionsMTD || 0;
-            const currentValue = c.metrics?.valueCreated || 0;
-            
-            const addedHours = assignedHours;
-            const addedRuns = assignedRuns;
-            const addedValue = addedHours * 45; // $45/hr
-
-            return {
-              ...c,
-              metrics: {
-                hoursSaved: currentHours + addedHours,
-                executionsMTD: currentRuns + addedRuns,
-                valueCreated: currentValue + addedValue
-              }
-            };
-          }
-          return c;
-        });
-        localStorage.setItem('automateos_clients', JSON.stringify(updatedClients));
-        setClients(updatedClients);
-        
-        // If the selected client is this one, update the edit view in real time
-        if (selectedClient && selectedClient.id === targetRequest.clientId) {
-          const matchingClient = updatedClients.find(c => c.id === targetRequest.clientId);
-          setSelectedClient(matchingClient);
+    try {
+      const result = await updateClient(selectedClient.id, {
+        plan: editPlan,
+        status: editStatus,
+        metrics: {
+          hoursSaved: Number(editHoursSaved),
+          executionsMTD: Number(editExecutions),
+          valueCreated: Number(editValueCreated)
         }
-      }
+      }, token);
+      
+      showMessage('success', `Successfully updated ${selectedClient.companyName} configuration!`);
+      await loadData();
+    } catch (err) {
+      showMessage('error', err.message);
     }
-
-    setStatusMessage({
-      type: 'success',
-      text: `Request status updated to "${newStatus}"!`
-    });
-
-    // Dispatch event to sync other tabs
-    window.dispatchEvent(new Event('storage'));
-
-    setTimeout(() => setStatusMessage(null), 3000);
   };
 
-  // Calculations for Admin Stats Cards
-  const totalClients = clients.length;
-  const totalActiveAutomations = requests.filter(r => r.status === 'Active').length;
-  
-  const totalHoursSavedAcrossAll = clients.reduce((acc, c) => acc + (c.metrics?.hoursSaved || 0), 0);
-  
-  const planRates = { starter: 999, growth: 2499, dedicated: 4999 };
-  const totalMRR = clients.reduce((acc, c) => {
-    if (c.status === 'Active' || c.status === 'active') {
-      return acc + (planRates[c.plan] || 0);
+  const handleUpdateRequestStatus = async (requestId, newStatus) => {
+    if (!token) return;
+    
+    const defaultHours = newStatus === 'Active' ? 12 : 0;
+    const defaultRuns = newStatus === 'Active' ? 150 : 0;
+
+    try {
+      await updateRequest(requestId, {
+        status: newStatus,
+        hoursSaved: newStatus === 'Active' ? defaultHours : undefined,
+        runs: newStatus === 'Active' ? defaultRuns : undefined
+      }, token);
+      
+      showMessage('success', `Request status updated to "${newStatus}"!`);
+      await loadData();
+    } catch (err) {
+      showMessage('error', err.message);
     }
-    return acc;
-  }, 0);
+  };
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="flex items-center gap-2 text-slate-400 font-bold">
+          <RefreshCw className="w-5 h-5 animate-spin text-indigo-500" /> Checking authorization...
+        </div>
+      </div>
+    );
+  }
+
+  if (!authenticated) return null;
+
+  const totalAutomations = automations => automations.filter(r => r.status === 'Active').length;
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
@@ -447,14 +172,21 @@ export default function AdminPage() {
               Admin Ops Console
             </span>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3">
             <Link 
               to="/dashboard" 
               className="px-4 py-1.5 border border-slate-800 hover:border-slate-700 bg-slate-900 text-slate-300 font-bold rounded-xl text-xs transition inline-flex items-center space-x-1"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Portal</span>
+              <span>Portal</span>
             </Link>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1.5 border border-red-900/50 hover:border-red-700 text-red-400 font-bold rounded-xl text-xs transition inline-flex items-center space-x-1"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Logout</span>
+            </button>
           </div>
         </div>
       </nav>
@@ -470,12 +202,11 @@ export default function AdminPage() {
             <p className="text-slate-400 text-sm mt-1">Manage client subscriptions, active workflows, and real-time value metrics.</p>
           </div>
           
-          {/* Status Alert Banner */}
           {statusMessage && (
-            <div className={`p-3 rounded-xl text-xs font-bold shadow-md flex items-center animate-pulse ${
+            <div className={`p-3 rounded-xl text-xs font-bold shadow-md flex items-center ${
               statusMessage.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
             }`}>
-              <CheckCircle className="w-4 h-4 mr-1.5" />
+              {statusMessage.type === 'success' ? <CheckCircle className="w-4 h-4 mr-1.5" /> : <AlertCircle className="w-4 h-4 mr-1.5" />}
               {statusMessage.text}
             </div>
           )}
@@ -488,7 +219,7 @@ export default function AdminPage() {
           <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
             <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Estimated MRR</p>
             <h3 className="text-3xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent mt-2">
-              ${totalMRR.toLocaleString()}
+              ${(stats?.totalMRR || 0).toLocaleString()}
             </h3>
             <div className="mt-4 flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest gap-1">
               <TrendingUp className="text-emerald-500 w-3.5 h-3.5" /> Active accounts only
@@ -502,10 +233,10 @@ export default function AdminPage() {
           <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
             <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Active Clients</p>
             <h3 className="text-3xl font-black text-white mt-2">
-              {totalClients} Clients
+              {stats?.totalClients || 0} Clients
             </h3>
             <div className="mt-4 flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest gap-1">
-              <Users className="text-indigo-400 w-3.5 h-3.5" /> Shared Sandbox State
+              <Users className="text-indigo-400 w-3.5 h-3.5" /> Turso Persisted
             </div>
             <div className="absolute right-3 bottom-3 text-slate-800">
               <Users className="w-12 h-12 stroke-[1.5]" />
@@ -516,7 +247,7 @@ export default function AdminPage() {
           <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
             <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Active Automations</p>
             <h3 className="text-3xl font-black text-white mt-2">
-              {totalActiveAutomations} Live
+              {stats?.totalActiveAutomations || 0} Live
             </h3>
             <div className="mt-4 flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest gap-1">
               <Activity className="text-teal-400 w-3.5 h-3.5" /> Serving live webhooks
@@ -530,16 +261,15 @@ export default function AdminPage() {
           <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
             <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Time Saved</p>
             <h3 className="text-3xl font-black text-white mt-2">
-              {totalHoursSavedAcrossAll} Hours
+              {stats?.totalHoursSavedAcrossAll || 0} Hours
             </h3>
             <div className="mt-4 flex items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest gap-1">
-              <Clock className="text-sky-400 w-3.5 h-3.5" /> Equiv. ${ (totalHoursSavedAcrossAll * 45).toLocaleString() } Saved
+              <Clock className="text-sky-400 w-3.5 h-3.5" /> Equiv. ${(stats?.dollarValue || 0).toLocaleString()} Saved
             </div>
             <div className="absolute right-3 bottom-3 text-slate-800">
               <Clock className="w-12 h-12 stroke-[1.5]" />
             </div>
           </div>
-
         </div>
 
         {/* Tab Switcher */}
@@ -568,11 +298,19 @@ export default function AdminPage() {
           </button>
         </div>
 
+        {/* Loading Indicator */}
+        {loading && (
+          <div className="flex items-center justify-center py-8 text-slate-500">
+            <RefreshCw className="w-5 h-5 animate-spin mr-2 text-indigo-500" />
+            <span className="text-sm font-bold">Loading data from database...</span>
+          </div>
+        )}
+
         {/* Dynamic Admin Body */}
-        {activeTab === 'clients' ? (
+        {!loading && activeTab === 'clients' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             
-            {/* Left/Middle: Client Directory List */}
+            {/* Client Directory List */}
             <div className="lg:col-span-2 space-y-4">
               <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                 <div className="p-6 border-b border-slate-800/60 flex justify-between items-center bg-slate-950/40">
@@ -594,7 +332,7 @@ export default function AdminPage() {
                       }`}
                     >
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-extrabold text-white text-base">{client.companyName}</h3>
                           <span className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
                             client.plan === 'dedicated' 
@@ -615,21 +353,20 @@ export default function AdminPage() {
                         </div>
                         <p className="text-slate-400 text-xs mt-1 font-semibold">{client.contactName} ({client.email})</p>
                         
-                        {/* Compact Stats */}
-                        <div className="flex gap-4 mt-4">
+                        <div className="flex gap-4 mt-4 flex-wrap">
                           <div className="text-xs">
-                            <span className="text-slate-500">Hours Saved:</span> <strong className="text-indigo-400 font-extrabold">{client.metrics?.hoursSaved || 0} hrs</strong>
+                            <span className="text-slate-500">Hours Saved:</span> <strong className="text-indigo-400 font-extrabold">{client.hoursSaved || 0} hrs</strong>
                           </div>
                           <div className="text-xs">
-                            <span className="text-slate-500">Executions MTD:</span> <strong className="text-white font-extrabold">{client.metrics?.executionsMTD || 0}</strong>
+                            <span className="text-slate-500">Executions MTD:</span> <strong className="text-white font-extrabold">{client.executionsMTD || 0}</strong>
                           </div>
                           <div className="text-xs">
-                            <span className="text-slate-500">Value Created:</span> <strong className="text-emerald-400 font-extrabold">${(client.metrics?.valueCreated || 0).toLocaleString()}</strong>
+                            <span className="text-slate-500">Value Created:</span> <strong className="text-emerald-400 font-extrabold">${(client.valueCreated || 0).toLocaleString()}</strong>
                           </div>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 text-slate-500 font-bold text-xs">
+                      <div className="flex items-center gap-2 text-slate-500 font-bold text-xs flex-shrink-0">
                         <span>Click to Update</span>
                         <ChevronRight className="w-4 h-4" />
                       </div>
@@ -639,7 +376,7 @@ export default function AdminPage() {
               </div>
             </div>
 
-            {/* Right Side: Metrics & Status Updater Panel */}
+            {/* Client Configurator Panel */}
             <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
               <h2 className="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
                 <Sliders className="text-indigo-400 w-5 h-5" /> Client Configurator
@@ -653,7 +390,6 @@ export default function AdminPage() {
                     <p className="text-xs text-slate-500 mt-0.5">Contact: {selectedClient.contactName}</p>
                   </div>
 
-                  {/* Plan Selector */}
                   <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5">Subscription Plan</label>
                     <select 
@@ -667,7 +403,6 @@ export default function AdminPage() {
                     </select>
                   </div>
 
-                  {/* Status Selector */}
                   <div>
                     <label className="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5">Account Status</label>
                     <select 
@@ -681,7 +416,6 @@ export default function AdminPage() {
                     </select>
                   </div>
 
-                  {/* Numeric Metrics */}
                   <div className="grid grid-cols-1 gap-4 pt-1 border-t border-slate-900">
                     <div>
                       <label className="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-1.5">Hours Saved (Hrs)</label>
@@ -722,14 +456,15 @@ export default function AdminPage() {
               ) : (
                 <div className="p-8 text-center text-slate-500 border-2 border-dashed border-slate-800/40 rounded-xl">
                   <Sparkles className="w-8 h-8 mx-auto mb-3 text-slate-700" />
-                  <p className="text-xs font-bold">Select a client from the directory list to update real-time metrics & status.</p>
+                  <p className="text-xs font-bold">Select a client from the directory to update real-time metrics & status.</p>
                 </div>
               )}
             </div>
-
           </div>
-        ) : (
-          /* Operations / Requests Queue Tab */
+        )}
+
+        {/* Operations / Requests Queue Tab */}
+        {!loading && activeTab === 'requests' && (
           <div className="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
             <div className="p-6 border-b border-slate-800/60 flex justify-between items-center bg-slate-950/40">
               <div>
@@ -778,7 +513,6 @@ export default function AdminPage() {
                       <p className="text-slate-500 text-[10px] font-semibold">Submitted: {req.submitted} | Updated: {req.updated || 'Never'}</p>
                     </div>
 
-                    {/* Operational Action Controls */}
                     <div className="flex flex-wrap gap-2 md:self-center">
                       {req.status === 'Pending' && (
                         <>
@@ -819,12 +553,10 @@ export default function AdminPage() {
             </div>
           </div>
         )}
-
       </div>
 
-      {/* Footer */}
       <footer className="py-6 text-center text-xs text-slate-500 bg-slate-950 border-t border-slate-900 mt-auto">
-        &copy; {new Date().getFullYear()} AutomateOS Admin Engine. All rights reserved. Confidential.
+        &copy; {new Date().getFullYear()} AutomateOS Admin Engine. Data persisted via Turso. All rights reserved.
       </footer>
     </div>
   );
