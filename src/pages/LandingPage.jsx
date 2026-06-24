@@ -84,6 +84,22 @@ export default function LandingPage() {
     }
   ];
 
+  const trackInitiateCheckout = (planId) => {
+    if (window.gtag) {
+      window.gtag('event', 'select_promotion', {
+        item_list_id: 'pricing_plans',
+        item_list_name: 'Pricing Plans',
+        items: [{ item_id: planId, item_name: planId }]
+      });
+    }
+    if (window.fbq) {
+      window.fbq('track', 'InitiateCheckout', { content_category: 'subscription', content_ids: [planId] });
+    }
+    if (window.lintrk) {
+      window.lintrk('track', { conversion_id: 654321 });
+    }
+  };
+
   const useCases = [
     {
       icon: <Mail className="w-6 h-6 text-indigo-500" />,
@@ -169,7 +185,9 @@ export default function LandingPage() {
               We build, manage, and scale your custom automated workflows and AI agents for a flat monthly subscription. Get the power of an elite in-house operations engineer at a fraction of the cost.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <a href="#pricing" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-xl shadow-md transition-all duration-200">
+              <a href="#pricing" 
+                onClick={() => trackInitiateCheckout('hero_view_plans')}
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-xl shadow-md transition-all duration-200">
                 View Plans <ArrowRight className="w-5 h-5 ml-2" />
               </a>
               <Link to="/dashboard" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-sm transition-all duration-200">
@@ -240,6 +258,82 @@ export default function LandingPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Workflow Visualization Section */}
+      <section className="py-24 bg-slate-900 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 mb-4 border border-indigo-500/20">
+              <Zap className="w-3.5 h-3.5 mr-1.5 text-indigo-400" /> See It In Action
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4">
+              From Lead to Invoice — Fully Automated
+            </h2>
+            <p className="text-lg text-slate-400">
+              A single form submission triggers AI qualification, CRM sync, and team notification — in under 60 seconds. No manual steps. No errors.
+            </p>
+          </div>
+
+          <div className="relative flex justify-center">
+            <img 
+              src="/workflow-diagram.svg" 
+              alt="Automated workflow pipeline: Lead Capture → AI Qualification → CRM Sync → Slack Alert"
+              className="w-full max-w-5xl h-auto rounded-2xl shadow-2xl shadow-indigo-500/5"
+            />
+          </div>
+
+          {/* Feature highlights under the diagram */}
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="text-center">
+              <div className="text-3xl font-black text-indigo-400 mb-1">&lt; 60s</div>
+              <p className="text-sm text-slate-400 font-medium">End-to-end processing time</p>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-teal-400 mb-1">100%</div>
+              <p className="text-sm text-slate-400 font-medium">Accuracy rate on data sync</p>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-emerald-400 mb-1">24/7</div>
+              <p className="text-sm text-slate-400 font-medium">Non-stop operation, zero downtime</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Before vs After Section */}
+      <section className="py-24 bg-white border-y border-slate-200/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 mb-4 border border-emerald-100">
+              <Activity className="w-3.5 h-3.5 mr-1.5 text-emerald-500" /> The AutomateOS Impact
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 mb-4">
+              Before vs. After: Your Lead Pipeline
+            </h2>
+            <p className="text-lg text-slate-600">
+              What used to take 4+ hours of manual copy-paste now happens automatically in minutes. See the difference.
+            </p>
+          </div>
+
+          <div className="relative flex justify-center">
+            <img 
+              src="/before-after.svg" 
+              alt="Before vs After comparison: Manual pipeline taking 80 minutes vs automated pipeline taking 5 minutes"
+              className="w-full max-w-5xl h-auto rounded-2xl shadow-xl border border-slate-100"
+            />
+          </div>
+
+          <div className="mt-12 text-center">
+            <Link 
+              to="/onboarding"
+              className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-xl shadow-md transition-all duration-200"
+            >
+              Get Your Pipeline Automated <ArrowRight className="w-5 h-5 ml-2" />
+            </Link>
+            <p className="mt-4 text-xs text-slate-400">No commitment required. First workflow built in 48 hours.</p>
           </div>
         </div>
       </section>
@@ -352,6 +446,7 @@ export default function LandingPage() {
 
                   <Link 
                     to={`/onboarding?plan=${plan.id}`}
+                    onClick={() => trackInitiateCheckout(plan.id)}
                     className={`w-full inline-flex items-center justify-center py-3.5 px-6 rounded-xl font-bold text-sm shadow transition-all duration-200 ${
                       plan.popular 
                         ? 'bg-gradient-to-r from-indigo-500 to-teal-500 hover:from-indigo-600 hover:to-teal-600 text-white' 
@@ -366,6 +461,7 @@ export default function LandingPage() {
                     href={plan.stripeUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackInitiateCheckout(`stripe_direct_${plan.id}`)}
                     className="mt-2 w-full inline-flex items-center justify-center py-2 px-4 rounded-lg font-semibold text-[10px] text-indigo-500 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 transition"
                   >
                     <svg className="w-3.5 h-3.5 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { 
   Zap, ArrowRight, CheckCircle2, MessageSquare, User, Briefcase, 
@@ -19,21 +19,6 @@ export default function OnboardingPage() {
   const navigate = useNavigate();
   const selectedPlan = searchParams.get('plan') || 'starter';
 
-  const [step, setStep] = useState(1);
-  const [submitting, setSubmitting] = useState(false);
-  const [clientId, setClientId] = useState(null);
-
-  const [formData, setFormData] = useState({
-    companyName: '',
-    contactName: '',
-    email: '',
-    phone: '',
-    useCases: [],
-    firstRequest: '',
-    password: '',
-    slackConnected: false
-  });
-
   const plans = {
     starter: { 
       name: 'Starter Flow', price: 999,
@@ -51,6 +36,19 @@ export default function OnboardingPage() {
       description: 'An entire automation department dedicated to your business.'
     }
   };
+
+  useEffect(() => {
+    if (window.gtag) {
+      window.gtag('event', 'begin_checkout', {
+        currency: 'USD',
+        value: plans[selectedPlan]?.price || 0,
+        items: [{ item_id: selectedPlan, item_name: selectedPlan }]
+      });
+    }
+    if (window.fbq) {
+      window.fbq('track', 'InitiateCheckout', { content_category: 'subscription', content_ids: [selectedPlan] });
+    }
+  }, [selectedPlan]);
 
   const planInfo = plans[selectedPlan] || plans.starter;
   const stripeUrl = STRIPE_LINKS[selectedPlan] || STRIPE_LINKS.starter;
@@ -125,6 +123,11 @@ export default function OnboardingPage() {
       sessionStorage.setItem('automateos_current_client_id', cId);
       sessionStorage.setItem('automateos_pending_onboarding', 'true');
 
+      // Track Lead Generation
+      if (window.gtag) gtag('event', 'generate_lead', { 'value': 0.00, 'currency': 'USD' });
+      if (window.fbq) fbq('track', 'Lead');
+      if (window.lintrk) lintrk('track', { conversion_id: 654321 });
+
       // Set step to 3 to show Stripe redirect
       setStep(3);
     } catch (err) {
@@ -141,6 +144,19 @@ export default function OnboardingPage() {
   };
 
   const handleReturnFromStripe = () => {
+    // Track Purchase
+    if (window.gtag) {
+      window.gtag('event', 'purchase', {
+        transaction_id: 'T_' + Date.now(),
+        value: plans[selectedPlan]?.price || 0,
+        currency: 'USD',
+        items: [{ item_id: selectedPlan, item_name: selectedPlan }]
+      });
+    }
+    if (window.fbq) {
+      window.fbq('track', 'Purchase', { value: plans[selectedPlan]?.price || 0, currency: 'USD' });
+    }
+
     // User has completed payment, proceed to dashboard
     const cId = clientId || sessionStorage.getItem('automateos_current_client_id');
     sessionStorage.removeItem('automateos_pending_onboarding');
