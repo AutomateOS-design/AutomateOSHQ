@@ -79,6 +79,29 @@ export function fetchAdminStats(token) {
   return request('/admin/stats', { auth: token });
 }
 
+// ── Stripe Subscriptions ──────────────────────────────────────
+export function createCheckoutSession(clientId, plan) {
+  return request('/stripe/create-checkout-session', {
+    method: 'POST',
+    body: { clientId, plan }
+  });
+}
+
+export function createPortalSession(clientId) {
+  return request('/stripe/create-portal-session', {
+    method: 'POST',
+    body: { clientId }
+  });
+}
+
+export function fetchSubscription(clientId) {
+  return request(`/subscriptions/${clientId}`);
+}
+
+export function fetchPriceIds() {
+  return request('/stripe/price-ids');
+}
+
 // ── Health ────────────────────────────────────────────────────
 export function healthCheck() {
   return request('/health');

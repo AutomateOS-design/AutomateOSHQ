@@ -3,9 +3,9 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { 
   Zap, Activity, Clock, DollarSign, Plus, CheckCircle2, 
   ArrowUpRight, CheckCircle, AlertCircle, Sliders, Users,
-  Sparkles, TrendingUp, RefreshCw
+  Sparkles, TrendingUp, RefreshCw, ExternalLink, CreditCard
 } from 'lucide-react';
-import { fetchClients, fetchRequests, createRequest } from '../api';
+import { fetchClients, fetchRequests, createRequest, fetchSubscription, createPortalSession } from '../api';
 
 const SlackIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -32,6 +32,8 @@ export default function DashboardPage() {
   const [newRequestDesc, setNewRequestDesc] = useState('');
   const [requestSuccess, setRequestSuccess] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [subscription, setSubscription] = useState(null);
+  const [portalLoading, setPortalLoading] = useState(false);
 
   const loadData = async () => {
     try {
@@ -57,6 +59,17 @@ export default function DashboardPage() {
       if (matched) {
         setCurrentClient(matched);
         sessionStorage.setItem('automateos_current_client_id', matched.id);
+
+        // Fetch subscription status for this client
+        try {
+          const sub = await fetchSubscription(matched.id);
+          setSubscription(sub);
+        } catch (err) {
+          console.warn('Subscription fetch failed for client:', matched.id, err);
+          setSubscription(null);
+        }
+      } else {
+        console.error('No clients returned from API. clientsData:', clientsData);
       }
     } catch (err) {
       console.error('Failed to load dashboard data:', err);
@@ -101,6 +114,20 @@ export default function DashboardPage() {
   const totalHoursSaved = currentClient.hoursSaved || currentClient.metrics?.hoursSaved || 0;
   const totalRuns = currentClient.executionsMTD || currentClient.metrics?.executionsMTD || 0;
   const dollarsSaved = currentClient.valueCreated || currentClient.metrics?.valueCreated || 0;
+
+  const handleManageBilling = async () => {
+    if (portalLoading || !currentClient) return;
+    setPortalLoading(true);
+    try {
+      const result = await createPortalSession(currentClient.id);
+      window.open(result.url, '_blank');
+    } catch (err) {
+      console.error('Portal session error:', err);
+      alert('Could not open billing portal. Please contact support.');
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   const handleRequestSubmit = async (e) => {
     e.preventDefault();

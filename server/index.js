@@ -11,11 +11,27 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env file
+dotenv.config();
+
+// Request logger
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
+  next();
+});
+
 import {
   getClients, getClient, insertClient, updateClient, deleteClient,
   getRequests, insertRequest, updateRequest,
   seedDefaults
 } from './db.js';
+import {
+  initStripe, isStripeReady,
+  createCheckoutSession, createPortalSession, getClientSubscription,
+  handleWebhook, PRICE_IDS
+} from './stripe.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, '..', 'dist');
@@ -30,6 +46,22 @@ const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 // ── Middleware ──────────────────────────────────────────────────
 app.use(cors());
+
+// Webhook endpoint needs raw body — handle before JSON parser
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+  if (!isStripeReady()) {
+    return res.status(503).json({ error: 'Stripe not initialized' });
+  }
+  try {
+    const sig = req.headers['stripe-signature'];
+    const result = await handleWebhook(req.body, sig, STRIPE_WEBHOOK_SECRET);
+    res.json(result);
+  } catch (err) {
+    console.error('Webhook error:', err.message);
+    res.status(400).json({ error: err.message });
+  }
+});
+
 app.use(express.json());
 
 // ── Admin Authentication ────────────────────────────────────────
@@ -57,6 +89,11 @@ function requireAdmin(req, res, next) {
 // ── Seed default data on startup ────────────────────────────────
 const seedResult = seedDefaults();
 console.log('Seed:', seedResult);
+
+// ── Initialize Stripe ─────────────────────────────────────────
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
+initStripe(STRIPE_SECRET_KEY);
 
 // ═══════════════════════════════════════════════════════════════
 // API ROUTES
@@ -286,13 +323,84 @@ app.get('/api/health', (req, res) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// STRIPE SUBSCRIPTION ROUTES
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Create Checkout Session ─────────────────────────────────
+app.post('/api/stripe/create-checkout-session', async (req, res) => {
+  if (!isStripeReady()) {
+    return res.status(503).json({ error: 'Stripe not initialized. Set STRIPE_SECRET_KEY.' });
+  }
+  try {
+    const { clientId, plan } = req.body;
+    if (!clientId || !plan) {
+      return res.status(400).json({ error: 'Missing required fields: clientId, plan' });
+    }
+    const successUrl = `${req.protocol}://${req.get('host')}/dashboard?onboarded=true&clientId=${clientId}&plan=${plan}`;
+    const cancelUrl = `${req.protocol}://${req.get('host')}/onboarding?plan=${plan}`;
+    const result = await createCheckoutSession(clientId, plan, successUrl, cancelUrl);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Create Customer Portal Session ───────────────────────────
+app.post('/api/stripe/create-portal-session', async (req, res) => {
+  if (!isStripeReady()) {
+    return res.status(503).json({ error: 'Stripe not initialized' });
+  }
+  try {
+    const { clientId } = req.body;
+    if (!clientId) return res.status(400).json({ error: 'Missing clientId' });
+
+    const subscription = getClientSubscription(clientId);
+    if (!subscription || !subscription.stripeCustomerId) {
+      return res.status(404).json({ error: 'No active subscription found for this client' });
+    }
+
+    const returnUrl = `${req.protocol}://${req.get('host')}/dashboard?clientId=${clientId}`;
+    const result = await createPortalSession(subscription.stripeCustomerId, returnUrl);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Get Client Subscription Status ───────────────────────────
+app.get('/api/subscriptions/:clientId', (req, res) => {
+  try {
+    const subscription = getClientSubscription(req.params.clientId);
+    if (!subscription) return res.json({ active: false, subscription: null });
+    res.json({
+      active: subscription.status === 'active' || subscription.status === 'trialing',
+      subscription: {
+        id: subscription.id,
+        plan: subscription.plan,
+        status: subscription.status,
+        currentPeriodStart: subscription.currentPeriodStart,
+        currentPeriodEnd: subscription.currentPeriodEnd,
+        stripeCustomerId: subscription.stripeCustomerId,
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Get Price IDs for frontend ───────────────────────────────
+app.get('/api/stripe/price-ids', (req, res) => {
+  res.json(PRICE_IDS);
+});
+
+// ═══════════════════════════════════════════════════════════════
 // STATIC FILE SERVING (React frontend)
 // ═══════════════════════════════════════════════════════════════
 
 app.use(express.static(DIST_DIR));
 
 // SPA fallback — serve index.html for any non-API route
-app.get('/{*path}', (req, res) => {
+app.use((req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API route not found' });
   }

@@ -16,9 +16,19 @@ export function runSql(sql) {
     const escaped = sql.replace(/'/g, "'\\''");
     const cmd = `${TEAM_DB} '${escaped}'`;
     const stdout = execSync(cmd, { encoding: 'utf-8', timeout: 15000 });
-    return JSON.parse(stdout.trim() || '[]');
+    
+    // Attempt to extract the JSON array if there's chatter in stdout
+    const start = stdout.indexOf('[');
+    const end = stdout.lastIndexOf(']');
+    if (start !== -1 && end !== -1 && end > start) {
+      return JSON.parse(stdout.substring(start, end + 1));
+    }
+    
+    const trimmed = stdout.trim();
+    if (!trimmed) return [];
+    return JSON.parse(trimmed);
   } catch (err) {
-    console.error('DB Error:', err.message);
+    console.error('DB Error:', err.message, 'SQL:', sql);
     throw err;
   }
 }

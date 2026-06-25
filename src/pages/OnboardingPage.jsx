@@ -5,43 +5,26 @@ import {
   Check, Sparkles, ChevronLeft, CreditCard,
   Lock, ShieldCheck, RefreshCw, ExternalLink, ArrowUpRight
 } from 'lucide-react';
-import { createClient, createRequest } from '../api';
+import { createClient, createRequest, createCheckoutSession } from '../api';
 
-// Real Stripe Payment Links from our catalog
-const STRIPE_LINKS = {
-  starter: 'https://buy.stripe.com/dRm28r1b6e7S9Ok2MO5wI00',
-  growth: 'https://buy.stripe.com/fZu8wPaLG3ted0w7345wI01',
-  dedicated: 'https://buy.stripe.com/5kQ9ATf1W9RCbWs5Z05wI02',
+// Real Stripe Price IDs (used for reference — checkout URLs come from server)
+const PLAN_PRICES = {
+  starter: { name: 'Starter Flow', price: 999, description: 'The perfect entry point to eliminate your most painful manual tasks.' },
+  growth: { name: 'Growth Engine', price: 2499, description: 'Five intelligent workflows with AI document extraction, smart replies, and DB syncs.' },
+  dedicated: { name: 'Dedicated Retainer', price: 4999, description: 'An entire automation department dedicated to your business.' },
 };
 
 export default function OnboardingPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const selectedPlan = searchParams.get('plan') || 'starter';
-
-  const plans = {
-    starter: { 
-      name: 'Starter Flow', price: 999,
-      tagline: 'Stop copying. Start scaling.',
-      description: 'The perfect entry point to eliminate your most painful manual tasks.'
-    },
-    growth: { 
-      name: 'Growth Engine', price: 2499,
-      tagline: 'Workflows that think. Systems that scale.',
-      description: 'Five intelligent workflows with AI document extraction, smart replies, and DB syncs.'
-    },
-    dedicated: { 
-      name: 'Dedicated Retainer', price: 4999,
-      tagline: 'Your business, fully automated. Your team, fully focused.',
-      description: 'An entire automation department dedicated to your business.'
-    }
-  };
+  const [checkoutError, setCheckoutError] = useState('');
 
   useEffect(() => {
     if (window.gtag) {
       window.gtag('event', 'begin_checkout', {
         currency: 'USD',
-        value: plans[selectedPlan]?.price || 0,
+        value: PLAN_PRICES[selectedPlan]?.price || 0,
         items: [{ item_id: selectedPlan, item_name: selectedPlan }]
       });
     }
@@ -50,8 +33,7 @@ export default function OnboardingPage() {
     }
   }, [selectedPlan]);
 
-  const planInfo = plans[selectedPlan] || plans.starter;
-  const stripeUrl = STRIPE_LINKS[selectedPlan] || STRIPE_LINKS.starter;
+  const planInfo = PLAN_PRICES[selectedPlan];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -138,9 +120,31 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleStripeRedirect = () => {
-    // Open Stripe checkout in same tab
-    window.location.href = stripeUrl;
+  const handleStripeRedirect = async () => {
+    try {
+      setCheckoutError('');
+      setSubmitting(true);
+      const cId = clientId || sessionStorage.getItem('automateos_current_client_id');
+      if (!cId) { setCheckoutError('No client ID found. Please try again.'); setSubmitting(false); return; }
+      
+      const result = await createCheckoutSession(cId, selectedPlan);
+      
+      // Track checkout start
+      if (window.gtag) {
+        window.gtag('event', 'purchase', {
+          transaction_id: 'C_' + Date.now(),
+          value: PLAN_PRICES[selectedPlan]?.price || 0,
+          currency: 'USD',
+          items: [{ item_id: selectedPlan, item_name: selectedPlan }]
+        });
+      }
+      
+      // Redirect to Stripe hosted checkout
+      window.location.href = result.url;
+    } catch (err) {
+      setCheckoutError(err.message || 'Failed to create checkout session');
+      setSubmitting(false);
+    }
   };
 
   const handleReturnFromStripe = () => {
@@ -148,13 +152,13 @@ export default function OnboardingPage() {
     if (window.gtag) {
       window.gtag('event', 'purchase', {
         transaction_id: 'T_' + Date.now(),
-        value: plans[selectedPlan]?.price || 0,
+        value: PLAN_PRICES[selectedPlan]?.price || 0,
         currency: 'USD',
         items: [{ item_id: selectedPlan, item_name: selectedPlan }]
       });
     }
     if (window.fbq) {
-      window.fbq('track', 'Purchase', { value: plans[selectedPlan]?.price || 0, currency: 'USD' });
+      window.fbq('track', 'Purchase', { value: PLAN_PRICES[selectedPlan]?.price || 0, currency: 'USD' });
     }
 
     // User has completed payment, proceed to dashboard
@@ -400,12 +404,23 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
+                {checkoutError && (
+                  <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-xs text-red-600 font-bold">
+                    {checkoutError}
+                  </div>
+                )}
+
                 <div className="space-y-3 pt-1">
                   <button
                     onClick={handleStripeRedirect}
-                    className="w-full inline-flex items-center justify-center py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-indigo-500 hover:bg-indigo-600 shadow-lg transition"
+                    disabled={submitting}
+                    className="w-full inline-flex items-center justify-center py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-indigo-500 hover:bg-indigo-600 shadow-lg transition disabled:opacity-50"
                   >
-                    Pay with Stripe <ExternalLink className="w-4 h-4 ml-2" />
+                    {submitting ? (
+                      <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Creating Checkout...</>
+                    ) : (
+                      <>Pay with Stripe <ExternalLink className="w-4 h-4 ml-2" /></>
+                    )}
                   </button>
 
                   <div className="text-center border-t border-slate-100 pt-4">
