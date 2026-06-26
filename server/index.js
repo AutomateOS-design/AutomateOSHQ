@@ -28,6 +28,8 @@ import {
   handleWebhook, PRICE_IDS
 } from './stripe.js';
 
+import { initEmail, isEmailReady, sendLeadMagnet } from './email.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, '..', 'dist');
 
@@ -86,6 +88,10 @@ console.log('Seed:', seedResult);
 // ── Initialize Stripe ─────────────────────────────────────────
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 initStripe(STRIPE_SECRET_KEY);
+
+// ─── Initialize Email (Resend) ─────────────────────────────────
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+initEmail(RESEND_API_KEY);
 
 // ═══════════════════════════════════════════════════════════════
 // API ROUTES
@@ -216,7 +222,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // ─── Lead Magnet Capture ─────────────────────────────────────
-app.post('/api/leads', (req, res) => {
+app.post('/api/leads', async (req, res) => {
   try {
     const { firstName, email, agencyName, source = 'landing-page' } = req.body;
     if (!firstName || !email || !agencyName) {
@@ -224,7 +230,21 @@ app.post('/api/leads', (req, res) => {
     }
     const esc = (s) => s != null ? `'${String(s).replace(/'/g, "''")}'` : 'NULL';
     runSql(`INSERT INTO leads (firstName, email, agencyName, source) VALUES (${esc(firstName)}, ${esc(email)}, ${esc(agencyName)}, ${esc(source)})`);
-    res.status(201).json({ success: true, message: 'Lead captured successfully' });
+
+    // Send the lead magnet guide via Resend (async, non-blocking)
+    let emailResult = null;
+    if (isEmailReady()) {
+      emailResult = await sendLeadMagnet({ firstName, email, agencyName });
+      if (emailResult.success) {
+        runSql(`UPDATE leads SET delivered = 1 WHERE rowid IN (SELECT rowid FROM leads WHERE email = ${esc(email)} ORDER BY id DESC LIMIT 1)`);
+      }
+    }
+
+    res.status(201).json({
+      success: true,
+      message: 'Lead captured successfully',
+      email: emailResult ? (emailResult.success ? 'delivered' : 'pending') : 'unavailable'
+    });
   } catch (err) {
     console.error('Lead capture error:', err.message);
     res.status(500).json({ error: err.message });
