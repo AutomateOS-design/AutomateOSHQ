@@ -116,16 +116,17 @@ export function insertRequest(req) {
   const {
     id, clientId, clientName, title, type = 'Custom Integration',
     tools = '[]', status = 'Pending', hoursSaved = 0,
-    runs = 0, updated = 'Just now', submitted = 'Just now'
+    runs = 0, updated = 'Just now', submitted = 'Just now',
+    description = '', priority = 'normal', category = 'integration'
   } = req;
 
   const esc = (s) => (s != null ? `'${String(s).replace(/'/g, "''")}'` : 'NULL');
   const toolsStr = typeof tools === 'string' ? tools : JSON.stringify(tools);
 
-  const sql = `INSERT INTO requests (id, clientId, clientName, title, type, tools, status, hoursSaved, runs, updated, submitted)
+  const sql = `INSERT INTO requests (id, clientId, clientName, title, type, tools, status, hoursSaved, runs, updated, submitted, description, priority, category)
     VALUES (${id != null ? Number(id) : 'NULL'}, ${esc(clientId)}, ${esc(clientName)}, ${esc(title)},
             ${esc(type)}, ${esc(toolsStr)}, ${esc(status)}, ${Number(hoursSaved)}, ${Number(runs)},
-            ${esc(updated)}, ${esc(submitted)})`;
+            ${esc(updated)}, ${esc(submitted)}, ${esc(description)}, ${esc(priority)}, ${esc(category)})`;
   return runSql(sql);
 }
 

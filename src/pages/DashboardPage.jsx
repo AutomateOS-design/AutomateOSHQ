@@ -9,7 +9,7 @@ import {
   Percent, Star, ExternalLink, HelpCircle,
   AlertTriangle, Building2, Mail
 } from 'lucide-react';
-import { fetchClients, fetchRequests, createRequest } from '../api';
+import { fetchClients, fetchRequests, createRequest, fetchSubscription, createPortalSession, createCheckoutSession } from '../api';
 
 const SlackIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -70,6 +70,9 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [subscription, setSubscription] = useState(null);
+  const [portalLoading, setPortalLoading] = useState(false);
+  const [portalUrl, setPortalUrl] = useState(null);
 
   const loadData = async () => {
     try {
@@ -94,6 +97,10 @@ export default function DashboardPage() {
       if (matched) {
         setCurrentClient(matched);
         sessionStorage.setItem('automateos_current_client_id', matched.id);
+        // Also fetch subscription for this client
+        fetchSubscription(matched.id).then(sub => {
+          if (sub && sub.active) setSubscription(sub.subscription);
+        }).catch(() => {});
       }
     } catch (err) {
       console.error('Failed to load dashboard data:', err);
@@ -134,6 +141,7 @@ export default function DashboardPage() {
         description: newRequestDesc,
         type: categoryLabels[newRequestCategory],
         priority: priorityLabels[newRequestPriority],
+        category: newRequestCategory,
         tools: JSON.stringify(['Custom App API', 'Workflow Engine']),
         status: 'Pending',
         hoursSaved: 0,
@@ -151,6 +159,33 @@ export default function DashboardPage() {
       await loadData();
     } catch (err) {
       console.error('Failed to submit request:', err);
+    }
+  };
+
+  const handleOpenPortal = async () => {
+    if (!currentClient) return;
+    setPortalLoading(true);
+    try {
+      const result = await createPortalSession(currentClient.id);
+      if (result.url) {
+        window.open(result.url, '_blank');
+      }
+    } catch (err) {
+      console.error('Failed to open portal:', err);
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
+  const handleUpgradeCheckout = async (plan) => {
+    if (!currentClient) return;
+    try {
+      const result = await createCheckoutSession(currentClient.id, plan);
+      if (result.url) {
+        window.location.href = result.url;
+      }
+    } catch (err) {
+      console.error('Failed to create checkout:', err);
     }
   };
 
@@ -697,7 +732,19 @@ export default function DashboardPage() {
             )}
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Next Billing</span>
-              <span className="font-bold text-slate-900">July 20, 2026</span>
+              <span className="font-bold text-slate-900">
+                {subscription?.currentPeriodEnd 
+                  ? new Date(subscription.currentPeriodEnd + 'Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                  : 'N/A'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-slate-600">Status</span>
+              <span className={`font-bold text-sm ${subscription?.status === 'active' ? 'text-emerald-600' : subscription?.status ? 'text-amber-600' : 'text-slate-400'}`}>
+                {subscription?.status 
+                  ? subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)
+                  : 'Active (on plan)'}
+              </span>
             </div>
             <div className="flex items-center justify-between text-sm">
               <span className="text-slate-600">Support SLA</span>
@@ -707,12 +754,11 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <Link
-            to="/onboarding"
+          <button onClick={() => handleUpgradeCheckout(selectedPlan === 'starter' ? 'growth' : 'dedicated')}
             className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-indigo-500 hover:bg-indigo-600 transition shadow-sm"
           >
-            Upgrade Plan <ArrowUpRight className="w-3.5 h-3.5" />
-          </Link>
+            {selectedPlan === 'dedicated' ? 'Contact Sales' : 'Upgrade Plan'} <ArrowUpRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {/* Payment Method Card */}
@@ -742,9 +788,11 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <button className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 transition">
-            Manage Payment Method <ExternalLink className="w-3.5 h-3.5" />
-          </button>
+          <button onClick={handleOpenPortal} disabled={portalLoading}
+  className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 transition disabled:opacity-50">
+  {portalLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <ExternalLink className="w-3.5 h-3.5" />}
+  {portalLoading ? 'Opening Portal...' : 'Manage Billing Portal'}
+</button>
         </div>
 
         {/* Invoice History */}
