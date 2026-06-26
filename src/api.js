@@ -1,5 +1,5 @@
 /**
- * Frontend API client for AutomateOS backend.
+ * Frontend API client for AutomateOSHQ backend.
  * All API calls go through this module.
  */
 

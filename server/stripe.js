@@ -28,6 +28,8 @@ export const PRICE_IDS = {
   starter: 'price_1TlkKMDHCeB3dcqLLp62tjFs',
   growth: 'price_1TlkKcDHCeB3dcqLdVy6DFNl',
   dedicated: 'price_1TlkKmDHCeB3dcqL0zgarzuS',
+  solo: 'price_1TmHdjDHCeB3dcqL9aypFXcT',
+  enterprise: 'price_1TmHdqDHCeB3dcqLURKLxWGA',
 };
 
 const PLAN_FROM_PRICE = {};

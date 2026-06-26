@@ -54,15 +54,24 @@ export function getClient(id) {
 export function insertClient(client) {
   const {
     id, companyName, contactName, email, phone = '',
-    plan = 'starter', status = 'Active',
+    plan = 'starter', status = 'Active', password = '',
     hoursSaved = 0, executionsMTD = 0, valueCreated = 0
   } = client;
 
   const esc = (s) => (s != null ? `'${String(s).replace(/'/g, "''")}'` : 'NULL');
-  const sql = `INSERT INTO clients (id, companyName, contactName, email, phone, plan, status, hoursSaved, executionsMTD, valueCreated)
+  const sql = `INSERT INTO clients (id, companyName, contactName, email, phone, plan, status, hoursSaved, executionsMTD, valueCreated, password)
     VALUES (${esc(id)}, ${esc(companyName)}, ${esc(contactName)}, ${esc(email)}, ${esc(phone)},
-            ${esc(plan)}, ${esc(status)}, ${Number(hoursSaved)}, ${Number(executionsMTD)}, ${Number(valueCreated)})`;
+            ${esc(plan)}, ${esc(status)}, ${Number(hoursSaved)}, ${Number(executionsMTD)}, ${Number(valueCreated)}, ${esc(password)})`;
   return runSql(sql);
+}
+
+/**
+ * Attempt to log in a client by email and password.
+ */
+export function loginClient(email, password) {
+  const esc = (s) => (s != null ? `'${String(s).replace(/'/g, "''")}'` : 'NULL');
+  const rows = runSql(`SELECT * FROM clients WHERE email = ${esc(email)} AND password = ${esc(password)}`);
+  return rows[0] || null;
 }
 
 /**

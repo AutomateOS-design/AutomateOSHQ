@@ -1,6 +1,6 @@
 /**
  * AutomateOS Production Server
- * 
+ *
  * Serves the built React frontend and provides a REST API backed by
  * Turso (team-db) for persistent storage. Admin authentication uses
  * a password set via environment variable.
@@ -13,20 +13,15 @@ import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
 
-// Load environment variables from .env file
+// ── Configuration ────────────────────────────────────────────────
 dotenv.config();
-
-// Request logger
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
-  next();
-});
 
 import {
   getClients, getClient, insertClient, updateClient, deleteClient,
   getRequests, insertRequest, updateRequest,
-  seedDefaults
+  seedDefaults, loginClient, runSql
 } from './db.js';
+
 import {
   initStripe, isStripeReady,
   createCheckoutSession, createPortalSession, getClientSubscription,
@@ -38,8 +33,6 @@ const DIST_DIR = path.resolve(__dirname, '..', 'dist');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// ── Configuration from environment ──────────────────────────────
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'automateos-admin-2026';
 const SESSION_SECRET = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
 const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -47,38 +40,38 @@ const SESSION_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 // ── Middleware ──────────────────────────────────────────────────
 app.use(cors());
 
+// Request logger
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} ${req.method} ${req.url}`);
+  next();
+});
+
 // Webhook endpoint needs raw body — handle before JSON parser
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
-  if (!isStripeReady()) {
-    return res.status(503).json({ error: 'Stripe not initialized' });
-  }
+  const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  
   try {
-    const sig = req.headers['stripe-signature'];
-    const result = await handleWebhook(req.body, sig, STRIPE_WEBHOOK_SECRET);
+    const result = await handleWebhook(req.body, sig, webhookSecret);
     res.json(result);
   } catch (err) {
     console.error('Webhook error:', err.message);
-    res.status(400).json({ error: err.message });
+    res.status(400).send(`Webhook Error: ${err.message}`);
   }
 });
 
 app.use(express.json());
 
-// ── Admin Authentication ────────────────────────────────────────
-// Simple token-based auth using SHA-256 HMAC tokens stored in a Set
+// ── Session/Auth ────────────────────────────────────────────────
 const activeTokens = new Set();
-
-function generateToken() {
-  const raw = `${SESSION_SECRET}:${Date.now()}:${crypto.randomBytes(16).toString('hex')}`;
-  return crypto.createHash('sha256').update(raw).digest('hex');
-}
+const generateToken = () => crypto.randomBytes(32).toString('hex');
 
 function requireAdmin(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Unauthorized — missing or invalid token' });
+    return res.status(401).json({ error: 'Unauthorized — missing token' });
   }
-  const token = authHeader.slice(7);
+  const token = authHeader.split(' ')[1];
   if (!activeTokens.has(token)) {
     return res.status(401).json({ error: 'Unauthorized — token expired or invalid' });
   }
@@ -92,7 +85,6 @@ console.log('Seed:', seedResult);
 
 // ── Initialize Stripe ─────────────────────────────────────────
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
-const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
 initStripe(STRIPE_SECRET_KEY);
 
 // ═══════════════════════════════════════════════════════════════
@@ -119,23 +111,30 @@ app.get('/api/admin/check', requireAdmin, (req, res) => {
   res.json({ authenticated: true });
 });
 
+// ─── Client Auth ───────────────────────────────────────────────
+app.post('/api/clients/login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Missing email or password' });
+  }
+  try {
+    const client = loginClient(email, password);
+    if (!client) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    // For now, just return the client info. 
+    // In a real app, you'd use a JWT or session.
+    res.json({ success: true, client });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── Clients ───────────────────────────────────────────────────
 app.get('/api/clients', (req, res) => {
   try {
     const clients = getClients();
-    // Parse numeric fields for JSON response
-    const parsed = clients.map(c => ({
-      ...c,
-      hoursSaved: Number(c.hoursSaved || 0),
-      executionsMTD: Number(c.executionsMTD || 0),
-      valueCreated: Number(c.valueCreated || 0),
-      metrics: {
-        hoursSaved: Number(c.hoursSaved || 0),
-        executionsMTD: Number(c.executionsMTD || 0),
-        valueCreated: Number(c.valueCreated || 0)
-      }
-    }));
-    res.json(parsed);
+    res.json(clients);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -145,70 +144,36 @@ app.get('/api/clients/:id', (req, res) => {
   try {
     const client = getClient(req.params.id);
     if (!client) return res.status(404).json({ error: 'Client not found' });
-    res.json({
-      ...client,
-      hoursSaved: Number(client.hoursSaved || 0),
-      executionsMTD: Number(client.executionsMTD || 0),
-      valueCreated: Number(client.valueCreated || 0),
-      metrics: {
-        hoursSaved: Number(client.hoursSaved || 0),
-        executionsMTD: Number(client.executionsMTD || 0),
-        valueCreated: Number(client.valueCreated || 0)
-      }
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.post('/api/clients', (req, res) => {
-  try {
-    const { id, companyName, contactName, email, phone, plan, status, metrics } = req.body;
-    if (!id || !companyName || !contactName || !email) {
-      return res.status(400).json({ error: 'Missing required fields: id, companyName, contactName, email' });
-    }
-    insertClient({
-      id, companyName, contactName, email,
-      phone: phone || '',
-      plan: plan || 'starter',
-      status: status || 'Active',
-      hoursSaved: metrics?.hoursSaved || 0,
-      executionsMTD: metrics?.executionsMTD || 0,
-      valueCreated: metrics?.valueCreated || 0
-    });
-    const client = getClient(id);
-    res.status(201).json(client);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-app.put('/api/clients/:id', requireAdmin, (req, res) => {
-  try {
-    const { companyName, contactName, email, phone, plan, status, metrics } = req.body;
-    const updates = {};
-    if (companyName !== undefined) updates.companyName = companyName;
-    if (contactName !== undefined) updates.contactName = contactName;
-    if (email !== undefined) updates.email = email;
-    if (phone !== undefined) updates.phone = phone;
-    if (plan !== undefined) updates.plan = plan;
-    if (status !== undefined) updates.status = status;
-    if (metrics?.hoursSaved !== undefined) updates.hoursSaved = metrics.hoursSaved;
-    if (metrics?.executionsMTD !== undefined) updates.executionsMTD = metrics.executionsMTD;
-    if (metrics?.valueCreated !== undefined) updates.valueCreated = metrics.valueCreated;
-
-    updateClient(req.params.id, updates);
-    const client = getClient(req.params.id);
     res.json(client);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.delete('/api/clients/:id', requireAdmin, (req, res) => {
+app.post('/api/clients', async (req, res) => {
   try {
-    deleteClient(req.params.id);
-    res.json({ success: true });
+    const client = req.body;
+    const result = insertClient(client);
+    res.status(201).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/clients/:id', async (req, res) => {
+  try {
+    const client = req.body;
+    const result = updateClient(req.params.id, client);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/clients/:id', async (req, res) => {
+  try {
+    const result = deleteClient(req.params.id);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -218,100 +183,28 @@ app.delete('/api/clients/:id', requireAdmin, (req, res) => {
 app.get('/api/requests', (req, res) => {
   try {
     const { clientId } = req.query;
-    const requests = getRequests(clientId || null);
-    const parsed = requests.map(r => ({
-      ...r,
-      id: Number(r.id),
-      hoursSaved: Number(r.hoursSaved || 0),
-      runs: Number(r.runs || 0),
-      tools: typeof r.tools === 'string' ? JSON.parse(r.tools) : (r.tools || [])
-    }));
-    res.json(parsed);
+    const requests = getRequests(clientId);
+    res.json(requests);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.post('/api/requests', (req, res) => {
+app.post('/api/requests', async (req, res) => {
   try {
-    const reqData = req.body;
-    if (!reqData.clientId || !reqData.title) {
-      return res.status(400).json({ error: 'Missing required fields: clientId, title' });
-    }
-    insertRequest({
-      ...reqData,
-      id: reqData.id || Date.now(),
-      tools: typeof reqData.tools === 'string' ? reqData.tools : JSON.stringify(reqData.tools || []),
-      updated: 'Just now',
-      submitted: reqData.submitted || 'Just now'
-    });
-    res.status(201).json({ success: true });
+    const request = req.body;
+    const result = insertRequest(request);
+    res.status(201).json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.put('/api/requests/:id', requireAdmin, (req, res) => {
+app.put('/api/requests/:id', async (req, res) => {
   try {
-    const { status, hoursSaved, runs, title, type } = req.body;
-    const updates = {};
-    if (status !== undefined) updates.status = status;
-    if (hoursSaved !== undefined) updates.hoursSaved = hoursSaved;
-    if (runs !== undefined) updates.runs = runs;
-    if (title !== undefined) updates.title = title;
-    if (type !== undefined) updates.type = type;
-    updates.updated = 'Just now';
-
-    updateRequest(req.params.id, updates);
-
-    // If activating, also increment client metrics
-    if (status === 'Active') {
-      const allRequests = getRequests(null);
-      const target = allRequests.find(r => Number(r.id) === Number(req.params.id));
-      if (target) {
-        const client = getClient(target.clientId);
-        if (client) {
-          const addHours = Number(hoursSaved || 12);
-          const addRuns = Number(runs || 150);
-          updateClient(target.clientId, {
-            hoursSaved: Number(client.hoursSaved || 0) + addHours,
-            executionsMTD: Number(client.executionsMTD || 0) + addRuns,
-            valueCreated: Number(client.valueCreated || 0) + (addHours * 45)
-          });
-        }
-      }
-    }
-
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// ─── Admin Stats Endpoint ─────────────────────────────────────
-app.get('/api/admin/stats', requireAdmin, (req, res) => {
-  try {
-    const clients = getClients();
-    const requests = getRequests(null);
-    const planRates = { starter: 999, growth: 2499, dedicated: 4999 };
-    
-    const totalClients = clients.length;
-    const totalActiveAutomations = requests.filter(r => r.status === 'Active').length;
-    const totalHoursSavedAcrossAll = clients.reduce((acc, c) => acc + Number(c.hoursSaved || 0), 0);
-    const totalMRR = clients.reduce((acc, c) => {
-      if (c.status === 'Active' || c.status === 'active') {
-        return acc + (planRates[c.plan] || 0);
-      }
-      return acc;
-    }, 0);
-
-    res.json({
-      totalClients,
-      totalActiveAutomations,
-      totalHoursSavedAcrossAll,
-      totalMRR,
-      dollarValue: totalHoursSavedAcrossAll * 45
-    });
+    const request = req.body;
+    const result = updateRequest(req.params.id, request);
+    res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -320,6 +213,31 @@ app.get('/api/admin/stats', requireAdmin, (req, res) => {
 // ─── Health check ────────────────────────────────────────────
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// ─── Lead Magnet Capture ─────────────────────────────────────
+app.post('/api/leads', (req, res) => {
+  try {
+    const { firstName, email, agencyName, source = 'landing-page' } = req.body;
+    if (!firstName || !email || !agencyName) {
+      return res.status(400).json({ error: 'Missing required fields: firstName, email, agencyName' });
+    }
+    const esc = (s) => s != null ? `'${String(s).replace(/'/g, "''")}'` : 'NULL';
+    runSql(`INSERT INTO leads (firstName, email, agencyName, source) VALUES (${esc(firstName)}, ${esc(email)}, ${esc(agencyName)}, ${esc(source)})`);
+    res.status(201).json({ success: true, message: 'Lead captured successfully' });
+  } catch (err) {
+    console.error('Lead capture error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/leads', (req, res) => {
+  try {
+    const rows = runSql('SELECT * FROM leads ORDER BY createdAt DESC LIMIT 100');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════
@@ -353,12 +271,10 @@ app.post('/api/stripe/create-portal-session', async (req, res) => {
   try {
     const { clientId } = req.body;
     if (!clientId) return res.status(400).json({ error: 'Missing clientId' });
-
     const subscription = getClientSubscription(clientId);
     if (!subscription || !subscription.stripeCustomerId) {
       return res.status(404).json({ error: 'No active subscription found for this client' });
     }
-
     const returnUrl = `${req.protocol}://${req.get('host')}/dashboard?clientId=${clientId}`;
     const result = await createPortalSession(subscription.stripeCustomerId, returnUrl);
     res.json(result);

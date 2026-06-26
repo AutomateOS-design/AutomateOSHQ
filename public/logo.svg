@@ -57,7 +57,7 @@
     <!-- "Automate" -->
     <text x="0" y="28" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="700" fill="#0F172A" letter-spacing="-0.02em">Automate</text>
     <!-- "OS" -->
-    <text x="172" y="28" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="700" fill="url(#brandGrad)" letter-spacing="-0.02em">OS</text>
+    <text x="172" y="28" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="700" fill="url(#brandGrad)" letter-spacing="-0.02em">OSHQ</text>
     <!-- Tagline -->
     <text x="2" y="46" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="11" fill="#94A3B8" font-weight="400" letter-spacing="0.12em">WORKFLOW AUTOMATION · PRODUCTIZED</text>
   </g>

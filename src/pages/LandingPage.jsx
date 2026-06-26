@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Zap, 
   Cpu, 
@@ -16,29 +16,62 @@ import {
   Shield,
   Sparkles,
   RefreshCw,
-  Users
+  Users,
+  Download,
+  CheckCircle,
+  BookOpen
 } from 'lucide-react';
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const [leadForm, setLeadForm] = useState({ firstName: '', email: '', agencyName: '' });
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadLoading, setLeadLoading] = useState(false);
+  const [leadError, setLeadError] = useState('');
+
+  const handleNavigate = (path, e) => {
+    if (e) e.preventDefault();
+    navigate(path);
+  };
   const plans = [
+    {
+      id: 'solo',
+      name: 'Solo Spark',
+      price: '$499',
+      period: 'month',
+      tagline: 'Simple. Reliable. Done.',
+      description: 'The automated partner for solopreneurs. One high-impact workflow to handle your most repetitive task.',
+      features: [
+        '1 custom-built workflow',
+        'Unlimited revisions',
+        'Slack‑native support (72-hour SLA)',
+        'Standard integrations included',
+        'Monthly performance report',
+        'Built for solopreneurs'
+      ],
+      perfectFor: 'Consultants and solo founders needing to automate a single bottleneck like lead intake or invoicing.',
+      cta: 'Start small →',
+      popular: false,
+      stripeUrl: 'https://buy.stripe.com/9B66oHf1W3teaSo8785wI05',
+    },
     {
       id: 'starter',
       name: 'Starter Flow',
       price: '$999',
       period: 'month',
       tagline: 'Stop copying. Start scaling.',
-      description: 'The perfect entry point to eliminate your most painful manual tasks. Two custom workflows. Unlimited revisions. Zero downtime.',
+      description: 'The perfect entry point to eliminate your most painful manual tasks. Two custom workflows.',
       features: [
-        '2 custom-built workflows — Designed, built, and deployed by our automation engineers',
-        'Unlimited revisions — We iterate until your workflows run exactly how you envision',
-        'Slack‑native support — Open a thread and we’re on it (48-hour response SLA)',
-        'Standard integrations — Zapier, Make, Gmail, Slack, Calendly, Notion, Airtable',
-        'Monthly performance report — See exactly how many hours and dollars you saved',
-        '30‑min onboarding call — We learn your stack in one session'
+        '2 custom-built workflows',
+        'Unlimited revisions',
+        'Slack‑native support (48-hour SLA)',
+        'Standard integrations included',
+        'Monthly performance report',
+        '30‑min onboarding call'
       ],
-      perfectFor: 'Agency owners drowning in manual lead transfer. E‑commerce brands tired of copy‑pasting orders into shipping. Real estate teams still entering client data by hand.',
+      perfectFor: 'Agency owners drowning in manual lead transfer. E‑commerce brands tired of copy‑pasting orders.',
       cta: 'Start automating →',
-      popular: false,
+      popular: true,
       stripeUrl: 'https://buy.stripe.com/dRm28r1b6e7S9Ok2MO5wI00',
     },
     {
@@ -46,20 +79,20 @@ export default function LandingPage() {
       name: 'Growth Engine',
       price: '$2,499',
       period: 'month',
-      description: 'Five intelligent workflows with AI-powered document extraction, smart replies, and multi‑tool orchestration. Scale without the headcount.',
-      tagline: 'Workflows that think. Systems that scale.',
+      description: 'Five intelligent workflows with AI-powered document extraction and multi‑tool orchestration.',
+      tagline: 'Workflows that think.',
       features: [
-        '5 custom AI-powered workflows — Including GPT-4 and Claude integrations',
-        'AI document extraction — Parse invoices, contracts, emails into structured data automatically',
-        'Smart reply automation — AI drafts contextual responses for leads and clients',
-        'Custom database syncs — Keep your CRM, ERP, and analytics in lockstep',
-        '24‑hour priority support — We never let a broken workflow stop your business',
-        'Bi‑weekly strategy sync — 30 min every two weeks to plan your next automation',
-        'All Starter Flow features included'
+        '5 custom AI-powered workflows',
+        'AI document extraction (PDF/OCR)',
+        'Smart reply automation',
+        'Custom database syncs',
+        '24‑hour priority support',
+        'Bi‑weekly strategy sync',
+        'All Starter Flow features'
       ],
-      roi: 'One client automated their lead‑to‑invoice pipeline and recovered 35+ hours/week. Another cut invoice processing from 4 hours to 4 minutes.',
+      roi: 'One client automated their lead pipeline and recovered 35+ hours/week.',
       cta: 'Scale smarter →',
-      popular: true,
+      popular: false,
       stripeUrl: 'https://buy.stripe.com/fZu8wPaLG3ted0w7345wI01',
     },
     {
@@ -67,20 +100,39 @@ export default function LandingPage() {
       name: 'Dedicated Retainer',
       price: '$4,999',
       period: 'month',
-      description: 'An entire automation department — strategist, engineer, and AI — dedicated to your business. Unlimited workflows. Custom dashboards. Weekly strategy.',
+      description: 'An entire automation department — strategist, engineer, and AI — dedicated to your business.',
       features: [
-        'Unlimited active workflows — Build as many automations as you need',
-        'Dedicated automation team — Your personal strategist + senior engineer',
-        'Custom analytics dashboard — Real-time visibility into every automated process',
-        'Weekly strategy sync — 60-min deep dive on what to automate next',
-        'Custom API integrations — Connect proprietary tools, legacy systems, anything',
-        '1-hour emergency response — If it breaks, we fix it. Immediately.',
-        'Quarterly business review — We audit your ops and present a roadmap'
+        'Unlimited active workflows',
+        'Dedicated senior engineer',
+        'Custom analytics dashboard',
+        'Weekly strategy sync (60 min)',
+        'Custom API & Legacy integrations',
+        '1-hour emergency response',
+        'Quarterly business review'
       ],
-      cta: 'Talk to our team →',
-      alternative: 'Hiring a full‑time ops engineer costs $85,000–$120,000/year plus benefits. Dedicated Retainer gives you a whole team for less than $60,000/year. No recruiting. No PTO. No overhead.',
+      cta: 'Hire the department →',
+      alternative: 'Hiring a full‑time ops engineer costs $100k+/year. Get the team for half that.',
       popular: false,
       stripeUrl: 'https://buy.stripe.com/5kQ9ATf1W9RCbWs5Z05wI02',
+    },
+    {
+      id: 'enterprise',
+      name: 'Enterprise OS',
+      price: '$9,999',
+      period: 'month',
+      description: 'White-glove infrastructure automation for high-volume enterprises and global organizations.',
+      features: [
+        'Multi-department deployment',
+        'Custom private AI instances',
+        'SOC2 compliant deployments',
+        'On-site workshops available',
+        'Dedicated Account Director',
+        'Unlimited seats & requests',
+        'Custom dev sandbox environments'
+      ],
+      cta: 'Go Enterprise →',
+      popular: false,
+      stripeUrl: 'https://buy.stripe.com/3cI8wP5rmgg0aSo4UW5wI06',
     }
   ];
 
@@ -141,6 +193,31 @@ export default function LandingPage() {
     }
   ];
 
+  const handleLeadSubmit = async (e) => {
+    e.preventDefault();
+    setLeadLoading(true);
+    setLeadError('');
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(leadForm),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to submit');
+      setLeadSubmitted(true);
+      setLeadForm({ firstName: '', email: '', agencyName: '' });
+    } catch (err) {
+      setLeadError(err.message);
+    } finally {
+      setLeadLoading(false);
+    }
+  };
+
+  const handleLeadInput = (e) => {
+    setLeadForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Navigation */}
@@ -151,7 +228,7 @@ export default function LandingPage() {
               <div className="bg-indigo-500 text-white p-2 rounded-lg">
                 <Zap className="w-6 h-6 animate-pulse" />
               </div>
-              <span className="text-xl font-bold tracking-tight text-slate-900">AutomateOS</span>
+              <span className="text-xl font-bold tracking-tight text-slate-900">AutomateOSHQ</span>
             </div>
             <div className="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
               <a href="#features" className="hover:text-indigo-500 transition">Features</a>
@@ -160,12 +237,12 @@ export default function LandingPage() {
               <a href="#faq" className="hover:text-indigo-500 transition">FAQ</a>
             </div>
             <div className="flex items-center space-x-4">
-              <Link to="/dashboard" className="text-sm font-semibold text-slate-700 hover:text-indigo-500 transition">
+              <button onClick={(e) => handleNavigate('/dashboard', e)} className="text-sm font-semibold text-slate-700 hover:text-indigo-500 transition cursor-pointer">
                 Client Portal
-              </Link>
-              <Link to="/onboarding" className="inline-flex items-center justify-center px-4 h-9 text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg shadow-sm transition">
+              </button>
+              <button onClick={(e) => handleNavigate('/onboarding', e)} className="inline-flex items-center justify-center px-4 h-9 text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg shadow-sm transition cursor-pointer">
                 Get Started
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -185,14 +262,13 @@ export default function LandingPage() {
               We build, manage, and scale your custom automated workflows and AI agents for a flat monthly subscription. Get the power of an elite in-house operations engineer at a fraction of the cost.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <a href="#pricing" 
-                onClick={() => trackInitiateCheckout('hero_view_plans')}
-                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-xl shadow-md transition-all duration-200">
-                View Plans <ArrowRight className="w-5 h-5 ml-2" />
+              <button onClick={(e) => handleNavigate('/onboarding', e)}
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-xl shadow-md transition-all duration-200 cursor-pointer">
+                Start Automating Now <ArrowRight className="w-5 h-5 ml-2" />
+              </button>
+              <a href="#pricing" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-sm transition-all duration-200">
+                View Pricing Plans
               </a>
-              <Link to="/dashboard" className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl shadow-sm transition-all duration-200">
-                Explore Demo Portal
-              </Link>
             </div>
             
             {/* Quick trust metrics */}
@@ -214,7 +290,80 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Visual Workflow Map (SVG Graphic Overlay) */}
+      {/* Lead Magnet Opt-in Section */}
+      <section className="py-20 bg-gradient-to-br from-indigo-50 via-white to-teal-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+              {/* Left: Content */}
+              <div className="p-8 sm:p-12 lg:p-14 flex flex-col justify-center">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 mb-6 w-fit">
+                  <BookOpen className="w-3.5 h-3.5 mr-1.5" /> Free Resource
+                </span>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
+                  Recover 20+ Hours per Week with these <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-teal-500">5 Workflows</span>
+                </h2>
+                <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
+                  Download the free guide used by high-growth agencies to eliminate "Manual Work Tax" and scale without adding headcount.
+                </p>
+                <div className="space-y-3 mb-2">
+                  {['The Speed-to-Lead Engine — Automated Intake & AI Qualification', 'Seamless Onboarding — Payment → Project Kickoff in minutes', 'Hands-Off Reporter — Automated KPI Syncing', 'Frictionless Finance — Invoicing & Collections', 'Bottleneck Breaker — Content Approval Loops'].map((item, i) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <div className="bg-emerald-50 text-emerald-600 p-0.5 rounded-full mt-0.5 flex-shrink-0">
+                        <Check className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-slate-700 text-xs sm:text-sm font-medium">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right: Form */}
+              <div className="p-8 sm:p-12 lg:p-14 bg-gradient-to-br from-slate-50 to-indigo-50/30 flex items-center">
+                {leadSubmitted ? (
+                  <div className="w-full text-center py-8">
+                    <div className="p-3 bg-emerald-50 inline-flex rounded-2xl mb-4 border border-emerald-100">
+                      <CheckCircle className="w-10 h-10 text-emerald-500" />
+                    </div>
+                    <h3 className="text-xl font-extrabold text-slate-900 mb-2">Check Your Inbox! 📬</h3>
+                    <p className="text-slate-500 text-sm">We've sent the guide to <strong className="text-slate-700">{leadForm.email}</strong>. It should arrive in under 2 minutes.</p>
+                  </div>
+                ) : (
+                  <form onSubmit={handleLeadSubmit} className="w-full max-w-sm mx-auto space-y-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5" htmlFor="leadFirstName">First Name</label>
+                      <input type="text" name="firstName" id="leadFirstName" placeholder="e.g. Sarah" required
+                        value={leadForm.firstName} onChange={handleLeadInput}
+                        className="w-full px-4 py-3 bg-white border border-slate-200 hover:border-slate-300 focus:border-indigo-500 focus:bg-white rounded-xl focus:ring-4 focus:ring-indigo-500/10 transition outline-none text-sm font-medium" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5" htmlFor="leadEmail">Work Email</label>
+                      <input type="email" name="email" id="leadEmail" placeholder="sarah@agency.com" required
+                        value={leadForm.email} onChange={handleLeadInput}
+                        className="w-full px-4 py-3 bg-white border border-slate-200 hover:border-slate-300 focus:border-indigo-500 focus:bg-white rounded-xl focus:ring-4 focus:ring-indigo-500/10 transition outline-none text-sm font-medium" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5" htmlFor="leadAgency">Agency Name</label>
+                      <input type="text" name="agencyName" id="leadAgency" placeholder="e.g. Acme Agency" required
+                        value={leadForm.agencyName} onChange={handleLeadInput}
+                        className="w-full px-4 py-3 bg-white border border-slate-200 hover:border-slate-300 focus:border-indigo-500 focus:bg-white rounded-xl focus:ring-4 focus:ring-indigo-500/10 transition outline-none text-sm font-medium" />
+                    </div>
+
+                    {leadError && <p className="text-xs font-bold text-red-500">{leadError}</p>}
+
+                    <button type="submit" disabled={leadLoading || !leadForm.firstName || !leadForm.email || !leadForm.agencyName}
+                      className="w-full inline-flex items-center justify-center py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-indigo-500 to-teal-500 hover:from-indigo-600 hover:to-teal-600 shadow-lg transition disabled:opacity-50">
+                      {leadLoading ? <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Sending...</> : <><Download className="w-4 h-4 mr-2" /> Send Me the Guide →</>}
+                    </button>
+
+                    <p className="text-[10px] font-semibold text-slate-400 text-center pt-1">Join 150+ agency founders who have reclaimed their time. No spam, ever.</p>
+                  </form>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
       <section className="bg-white py-12 border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-8">COMPATIBLE WITH ALL YOUR CRITICAL BUSINESS TOOLS</p>
@@ -253,9 +402,9 @@ export default function LandingPage() {
                   <h3 className="text-xl font-bold text-slate-900 mb-3">{useCase.title}</h3>
                   <p className="text-slate-600 leading-relaxed text-sm sm:text-base">{useCase.description}</p>
                 </div>
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center text-indigo-500 text-sm font-semibold hover:text-indigo-600 cursor-pointer group">
+                <Link to="/onboarding" className="mt-6 pt-4 border-t border-slate-100 flex items-center text-indigo-500 text-sm font-semibold hover:text-indigo-600 cursor-pointer group">
                   Learn more <ArrowRight className="w-4 h-4 ml-1.5 group-hover:translate-x-1 transition-transform" />
-                </div>
+                </Link>
               </div>
             ))}
           </div>
@@ -308,7 +457,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-600 mb-4 border border-emerald-100">
-              <Activity className="w-3.5 h-3.5 mr-1.5 text-emerald-500" /> The AutomateOS Impact
+              <Activity className="w-3.5 h-3.5 mr-1.5 text-emerald-500" /> The AutomateOSHQ Impact
             </span>
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 mb-4">
               Before vs. After: Your Lead Pipeline
@@ -343,7 +492,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-20">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 mb-4">
-              How AutomateOS Works
+              How AutomateOSHQ Works
             </h2>
             <p className="text-lg text-slate-600">
               Getting custom automations has never been this frictionless. No coding, no hiring headaches, just workflows delivered on demand.
@@ -387,7 +536,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
             {plans.map((plan) => (
               <div 
                 key={plan.id} 
@@ -472,6 +621,51 @@ export default function LandingPage() {
             ))}
           </div>
 
+          <div className="mt-20">
+            <div className="text-center mb-12">
+              <h3 className="text-2xl font-bold text-slate-900">One-Time Professional Services</h3>
+              <p className="text-slate-500 mt-2 text-sm">Need a jumpstart or a single build without the subscription?</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Audit */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div className="bg-indigo-50 text-indigo-500 w-10 h-10 rounded-lg flex items-center justify-center mb-6">
+                    <Activity className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-900 mb-2">Automation Audit</h4>
+                  <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                    A 60-minute deep dive into your current tech stack. We'll identify the "Manual Work Tax" 
+                    in your agency and deliver a prioritized automation roadmap with estimated ROI for each build.
+                  </p>
+                  <div className="text-2xl font-black text-slate-900 mb-6">$299 <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">/ one-time</span></div>
+                </div>
+                <a href="https://buy.stripe.com/eVqcN5g604xi7GcfzA5wI03" target="_blank" rel="noopener noreferrer" 
+                  className="w-full inline-flex items-center justify-center py-3 px-6 rounded-xl font-bold text-sm bg-slate-900 text-white hover:bg-slate-800 transition">
+                  Book Your Audit
+                </a>
+              </div>
+              {/* Single Build */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm flex flex-col justify-between">
+                <div>
+                  <div className="bg-teal-50 text-teal-600 w-10 h-10 rounded-lg flex items-center justify-center mb-6">
+                    <Zap className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-900 mb-2">Custom Workflow Build</h4>
+                  <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                    Need one high-complexity workflow built correctly? We design, build, and deploy 
+                    a single custom integration (e.g. Lead {'->'} CRM {'->'} Invoice) with 30 days of support.
+                  </p>
+                  <div className="text-2xl font-black text-slate-900 mb-6">$1,499 <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">/ one-time</span></div>
+                </div>
+                <a href="https://buy.stripe.com/00w00jg600h20dK4UW5wI04" target="_blank" rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center py-3 px-6 rounded-xl font-bold text-sm bg-slate-900 text-white hover:bg-slate-800 transition">
+                  Request a Build
+                </a>
+              </div>
+            </div>
+          </div>
+
           <div className="mt-16 text-center text-slate-500 text-sm flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-8">
             <span className="flex items-center"><Shield className="w-4 h-4 mr-1.5 text-slate-400" /> Cancel or pause anytime</span>
             <span className="flex items-center"><RefreshCw className="w-4 h-4 mr-1.5 text-slate-400" /> Unlimited revisions</span>
@@ -523,7 +717,7 @@ export default function LandingPage() {
             <div className="bg-indigo-500 text-white p-1.5 rounded-md">
               <Zap className="w-5 h-5" />
             </div>
-            <span className="text-white font-bold text-lg tracking-tight">AutomateOS</span>
+            <span className="text-white font-bold text-lg tracking-tight">AutomateOSHQ</span>
           </div>
           <div className="flex space-x-6 text-sm mb-6 sm:mb-0">
             <a href="#features" className="hover:text-white transition">Features</a>
@@ -531,7 +725,7 @@ export default function LandingPage() {
             <Link to="/dashboard" className="hover:text-white transition">Dashboard</Link>
           </div>
           <div className="text-xs text-slate-500">
-            &copy; {new Date().getFullYear()} AutomateOS. All rights reserved.
+            &copy; {new Date().getFullYear()} AutomateOSHQ. All rights reserved.
           </div>
         </div>
       </footer>

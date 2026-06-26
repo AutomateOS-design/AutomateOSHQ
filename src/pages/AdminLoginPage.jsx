@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
             <Zap className="w-6 h-6" />
           </div>
           <span className="text-xl font-black tracking-tight bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">
-            AutomateOS
+            AutomateOSHQ
           </span>
         </Link>
 

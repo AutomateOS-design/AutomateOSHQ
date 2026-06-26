@@ -9,9 +9,11 @@ import { createClient, createRequest, createCheckoutSession } from '../api';
 
 // Real Stripe Price IDs (used for reference — checkout URLs come from server)
 const PLAN_PRICES = {
+  solo: { name: 'Solo Spark', price: 499, description: '1 active simple workflow, unlimited revisions, 72-hour response time.' },
   starter: { name: 'Starter Flow', price: 999, description: 'The perfect entry point to eliminate your most painful manual tasks.' },
   growth: { name: 'Growth Engine', price: 2499, description: 'Five intelligent workflows with AI document extraction, smart replies, and DB syncs.' },
   dedicated: { name: 'Dedicated Retainer', price: 4999, description: 'An entire automation department dedicated to your business.' },
+  enterprise: { name: 'Enterprise OS', price: 9999, description: 'Full white-glove service. Multi-department automation, custom API development, and strategist.' },
 };
 
 export default function OnboardingPage() {
@@ -19,6 +21,19 @@ export default function OnboardingPage() {
   const navigate = useNavigate();
   const selectedPlan = searchParams.get('plan') || 'starter';
   const [checkoutError, setCheckoutError] = useState('');
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    companyName: '',
+    contactName: '',
+    email: '',
+    phone: '',
+    password: '',
+    firstRequest: '',
+    useCases: [],
+    slackConnected: false
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [clientId, setClientId] = useState('');
 
   useEffect(() => {
     if (window.gtag) {
@@ -209,7 +224,7 @@ export default function OnboardingPage() {
             <div className="bg-indigo-500 text-white p-1.5 rounded-lg">
               <Zap className="w-5 h-5" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-slate-900">AutomateOS</span>
+            <span className="text-lg font-bold tracking-tight text-slate-900">AutomateOSHQ</span>
           </Link>
           <div className="flex items-center space-x-2 text-xs font-semibold text-slate-500 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded-full">
             <span>Onboarding: Step {step} of 4</span>
@@ -492,7 +507,7 @@ export default function OnboardingPage() {
       </main>
 
       <footer className="py-6 text-center text-xs text-slate-400 bg-white border-t border-slate-100">
-        &copy; {new Date().getFullYear()} AutomateOS. Payments powered by Stripe.
+        &copy; {new Date().getFullYear()} AutomateOSHQ. Payments powered by Stripe.
       </footer>
     </div>
   );

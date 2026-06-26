@@ -166,7 +166,7 @@ export default function AdminPage() {
               <div className="bg-gradient-to-tr from-indigo-500 to-teal-500 text-white p-1.5 rounded-lg">
                 <Zap className="w-5 h-5" />
               </div>
-              <span className="text-lg font-black tracking-tight bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">AutomateOS</span>
+              <span className="text-lg font-black tracking-tight bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent">AutomateOSHQ</span>
             </Link>
             <span className="text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-md font-bold uppercase tracking-wider">
               Admin Ops Console
@@ -556,7 +556,7 @@ export default function AdminPage() {
       </div>
 
       <footer className="py-6 text-center text-xs text-slate-500 bg-slate-950 border-t border-slate-900 mt-auto">
-        &copy; {new Date().getFullYear()} AutomateOS Admin Engine. Data persisted via Turso. All rights reserved.
+        &copy; {new Date().getFullYear()} AutomateOSHQ Admin Engine. Data persisted via Turso. All rights reserved.
       </footer>
     </div>
   );
