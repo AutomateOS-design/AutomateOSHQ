@@ -221,6 +221,34 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// ─── Sitemap XML ─────────────────────────────────────────────
+app.get('/sitemap.xml', (req, res) => {
+  const siteUrl = 'https://automateos.io';
+  const now = new Date().toISOString().split('T')[0];
+  res.header('Content-Type', 'application/xml');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${siteUrl}/</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${siteUrl}/lead-magnet</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${siteUrl}/onboarding</loc>
+    <lastmod>${now}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>`);
+});
+
 // ─── Lead Magnet Capture ─────────────────────────────────────
 app.post('/api/leads', async (req, res) => {
   try {

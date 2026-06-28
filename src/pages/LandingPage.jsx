@@ -256,7 +256,7 @@ export default function LandingPage() {
               <Sparkles className="w-3.5 h-3.5 mr-1.5 text-indigo-500" /> AI-Native Operations Department
             </span>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 mb-6 leading-tight">
-              Stop building automations. <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-teal-500">Start owning your time.</span>
+              Productized <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-teal-500">AI &amp; Workflow Automation</span> for Growing Agencies.
             </h1>
             <p className="text-lg sm:text-xl text-slate-600 mb-10 leading-relaxed">
               We build, manage, and scale your custom automated workflows and AI agents for a flat monthly subscription. Get the power of an elite in-house operations engineer at a fraction of the cost.
@@ -427,9 +427,10 @@ export default function LandingPage() {
           </div>
 
           <div className="relative flex justify-center">
-            <img 
-              src="/workflow-diagram.svg" 
-              alt="Automated workflow pipeline: Lead Capture → AI Qualification → CRM Sync → Slack Alert"
+            <img
+              src="/workflow-diagram.svg"
+              alt="Agency automation workflow diagram: Lead Capture via web forms → AI Qualification with GPT → CRM Sync to HubSpot or Salesforce → Slack Alert to sales team"
+              loading="lazy"
               className="w-full max-w-5xl h-auto rounded-2xl shadow-2xl shadow-indigo-500/5"
             />
           </div>
@@ -468,9 +469,10 @@ export default function LandingPage() {
           </div>
 
           <div className="relative flex justify-center">
-            <img 
-              src="/before-after.svg" 
-              alt="Before vs After comparison: Manual pipeline taking 80 minutes vs automated pipeline taking 5 minutes"
+            <img
+              src="/before-after.svg"
+              alt="Before vs After comparison of agency lead pipeline: Manual workflow takes 80 minutes with data entry errors vs automated workflow reduces to 5 minutes with AI accuracy"
+              loading="lazy"
               className="w-full max-w-5xl h-auto rounded-2xl shadow-xl border border-slate-100"
             />
           </div>
@@ -520,6 +522,48 @@ export default function LandingPage() {
             <Link to="/onboarding?plan=dedicated" className="inline-flex items-center justify-center px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-lg shadow transition">
               Book a Strategy Sync <ArrowUpRight className="w-4 h-4 ml-1.5" />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Service Delivery Blueprint Section */}
+      <section className="py-24 bg-slate-900 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-400 mb-4 border border-indigo-500/20">
+              <Layers className="w-3.5 h-3.5 mr-1.5 text-indigo-400" /> Our Delivery Process
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-4">
+              Service Delivery Blueprint
+            </h2>
+            <p className="text-lg text-slate-400">
+              From audit to ongoing operations — a proven 5-stage methodology that ensures every workflow is built right and stays running.
+            </p>
+          </div>
+
+          <div className="relative flex justify-center">
+            <img
+              src="/service-delivery-blueprint.svg"
+              alt="Service Delivery Blueprint for AI workflow automation: Phase 1 Audit → Phase 2 Blueprint → Phase 3 Build → Phase 4 Integrate → Phase 5 Manage & Optimize"
+              loading="lazy"
+              className="w-full max-w-6xl h-auto rounded-2xl shadow-2xl shadow-indigo-500/5"
+            />
+          </div>
+
+          {/* Quick stats under the blueprint */}
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <div className="text-center p-6 bg-slate-800/50 rounded-2xl border border-slate-700/50">
+              <p className="text-3xl font-black text-indigo-400 mb-1">12 Days</p>
+              <p className="text-sm text-slate-400 font-medium">Average audit-to-deploy timeline</p>
+            </div>
+            <div className="text-center p-6 bg-slate-800/50 rounded-2xl border border-slate-700/50">
+              <p className="text-3xl font-black text-teal-400 mb-1">100%</p>
+              <p className="text-sm text-slate-400 font-medium">Custom-built for your stack</p>
+            </div>
+            <div className="text-center p-6 bg-slate-800/50 rounded-2xl border border-slate-700/50">
+              <p className="text-3xl font-black text-emerald-400 mb-1">&infin;</p>
+              <p className="text-sm text-slate-400 font-medium">Ongoing support & optimization</p>
+            </div>
           </div>
         </div>
       </section>
@@ -670,6 +714,144 @@ export default function LandingPage() {
             <span className="flex items-center"><Shield className="w-4 h-4 mr-1.5 text-slate-400" /> Cancel or pause anytime</span>
             <span className="flex items-center"><RefreshCw className="w-4 h-4 mr-1.5 text-slate-400" /> Unlimited revisions</span>
             <span className="flex items-center"><Users className="w-4 h-4 mr-1.5 text-slate-400" /> 1-on-1 direct support</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Bite-Sized Offers Section */}
+      <section className="py-20 bg-white border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 mb-4 border border-amber-200">
+              <Zap className="w-3 h-3 mr-1.5 text-amber-500" /> Low-Commitment Options
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 mb-3">
+              One-Off Automation Products
+            </h2>
+            <p className="text-base text-slate-500">
+              Not ready for a subscription? Start with a single automation product. No commitment, instant value.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+            {/* Product 1: Template Pack */}
+            <div className="group bg-slate-50 border border-slate-200 hover:border-indigo-200 rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:bg-white">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-2.5 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors">
+                  <Layers className="w-5 h-5 text-indigo-500" />
+                </div>
+                <span className="text-[9px] font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                  One-Time
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-1">Template Pack</h3>
+              <p className="text-[10px] font-semibold text-amber-600 uppercase tracking-wider mb-2">Lead Gen Essentials</p>
+              <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                3 pre-built automation templates for lead capture, CRM sync, and follow-up. Ready to deploy in your stack.
+              </p>
+              <div className="flex items-baseline mb-4">
+                <span className="text-2xl font-black text-slate-900">$149</span>
+                <span className="text-xs text-slate-400 ml-1.5 font-medium">one-time</span>
+              </div>
+              <ul className="space-y-2 mb-5">
+                {['Lead capture → CRM template', 'Auto follow-up sequence', 'Slack notification pipeline'].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <Check className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="text-[11px] text-slate-600">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="https://buy.stripe.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200"
+              >
+                Buy Templates <ArrowRight className="w-3 h-3" />
+              </a>
+            </div>
+
+            {/* Product 2: Strategy Session */}
+            <div className="group bg-slate-50 border border-slate-200 hover:border-indigo-200 rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:bg-white">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-2.5 bg-teal-50 rounded-xl group-hover:bg-teal-100 transition-colors">
+                  <BookOpen className="w-5 h-5 text-teal-500" />
+                </div>
+                <span className="text-[9px] font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                  One-Time
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-1">Strategy Session</h3>
+              <p className="text-[10px] font-semibold text-teal-600 uppercase tracking-wider mb-2">Workflow Audit & Roadmap</p>
+              <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                60-minute deep dive with a senior automation engineer. Get a prioritized roadmap of your biggest automation wins.
+              </p>
+              <div className="flex items-baseline mb-4">
+                <span className="text-2xl font-black text-slate-900">$299</span>
+                <span className="text-xs text-slate-400 ml-1.5 font-medium">one-time</span>
+              </div>
+              <ul className="space-y-2 mb-5">
+                {['Full tech stack audit', 'Top 3 automation opportunities', 'Custom roadmap document'].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <Check className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="text-[11px] text-slate-600">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="https://buy.stripe.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200"
+              >
+                Book Session <ArrowRight className="w-3 h-3" />
+              </a>
+            </div>
+
+            {/* Product 3: Single Build */}
+            <div className="group bg-slate-50 border border-slate-200 hover:border-indigo-200 rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:bg-white">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-2.5 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors">
+                  <Zap className="w-5 h-5 text-indigo-500" />
+                </div>
+                <span className="text-[9px] font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                  One-Time
+                </span>
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-1">Single Build</h3>
+              <p className="text-[10px] font-semibold text-indigo-600 uppercase tracking-wider mb-2">Custom Integration</p>
+              <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                One custom integration or workflow, built and deployed by our engineers. Includes 30 days of post-launch support.
+              </p>
+              <div className="flex items-baseline mb-4">
+                <span className="text-2xl font-black text-slate-900">$499</span>
+                <span className="text-xs text-slate-400 ml-1.5 font-medium">one-time</span>
+              </div>
+              <ul className="space-y-2 mb-5">
+                {['Custom API integration', 'Zapier/Make/n8n workflow', '30-day support included'].map((item, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <Check className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="text-[11px] text-slate-600">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="https://buy.stripe.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200"
+              >
+                Order Build <ArrowRight className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
+
+          {/* Bottom trust note */}
+          <div className="mt-10 text-center">
+            <p className="text-xs text-slate-400">
+              All products include a <span className="font-bold text-slate-600">7-day satisfaction guarantee</span>. 
+              Not sure what you need? <a href="#pricing" className="text-indigo-500 hover:text-indigo-600 font-semibold underline underline-offset-2">View our subscription plans →</a>
+            </p>
           </div>
         </div>
       </section>
