@@ -51,7 +51,7 @@ export async function sendLeadMagnet({ firstName, email, agencyName }) {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'AutomateOS <automateos@ctomail.io>',
+      from: 'AutomateOS <onboarding@resend.dev>',
       to: [email],
       subject: '[Download] Your Agency Automation Guide is here',
       html: `
@@ -132,7 +132,7 @@ export async function sendProductDelivery({ email, name, productName, productPri
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'AutomateOS <automateos@ctomail.io>',
+      from: 'AutomateOS <onboarding@resend.dev>',
       to: [email],
       subject: `📥 Your Download: ${productTitle} is ready!`,
       html: `
