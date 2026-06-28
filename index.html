@@ -75,12 +75,12 @@
 </script>
 
 <!-- Google Analytics 4 (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-B1C2D3E4F5"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=%VITE_GA4_MEASUREMENT_ID%"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-B1C2D3E4F5');
+  gtag('config', '%VITE_GA4_MEASUREMENT_ID%');
 </script>
 
 <!-- Meta Pixel Code -->
@@ -93,13 +93,13 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '123456789012345');
+fbq('init', '%VITE_META_PIXEL_ID%');
 fbq('track', 'PageView');
 </script>
 
 <!-- LinkedIn Insight Tag -->
 <script type="text/javascript">
-_linkedin_partner_id = "654321";
+_linkedin_partner_id = "%VITE_LINKEDIN_PARTNER_ID%";
 window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
 window._linkedin_data_partner_ids.push(_linkedin_partner_id);
 </script><script type="text/javascript">

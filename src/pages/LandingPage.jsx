@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import WorkflowDiagram from '../components/WorkflowDiagram';
+import { createLead } from '../api';
 import { 
   Zap, 
   Cpu, 
@@ -24,13 +26,26 @@ import {
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [leadForm, setLeadForm] = useState({ firstName: '', email: '', agencyName: '' });
   const [leadSubmitted, setLeadSubmitted] = useState(false);
   const [leadLoading, setLeadLoading] = useState(false);
   const [leadError, setLeadError] = useState('');
 
-  const handleNavigate = (path, e) => {
+  const handleNavigate = (path, e, eventLabel = null) => {
     if (e) e.preventDefault();
+    // Fire conversion event for CTA clicks
+    if (eventLabel) {
+      if (window.gtag) {
+        window.gtag('event', 'select_promotion', {
+          event_category: 'engagement',
+          event_label: eventLabel
+        });
+      }
+      if (window.fbq) {
+        window.fbq('track', 'InitiateCheckout', { content_name: eventLabel });
+      }
+    }
     navigate(path);
   };
   const plans = [
@@ -198,13 +213,29 @@ export default function LandingPage() {
     setLeadLoading(true);
     setLeadError('');
     try {
-      const res = await fetch('/api/leads', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(leadForm),
+      const utm_source = searchParams.get('utm_source') || '';
+      const utm_medium = searchParams.get('utm_medium') || '';
+      const utm_campaign = searchParams.get('utm_campaign') || '';
+
+      await createLead({
+        ...leadForm,
+        source: 'landing-page',
+        utm_source,
+        utm_medium,
+        utm_campaign
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to submit');
+      
+      // Track Lead conversion
+      if (window.gtag) {
+        window.gtag('event', 'generate_lead', {
+          event_category: 'engagement',
+          event_label: 'Lead Magnet Download'
+        });
+      }
+      if (window.fbq) {
+        window.fbq('track', 'Lead', { content_name: 'Lead Magnet Guide' });
+      }
+
       setLeadSubmitted(true);
       setLeadForm({ firstName: '', email: '', agencyName: '' });
     } catch (err) {
@@ -240,7 +271,7 @@ export default function LandingPage() {
               <button onClick={(e) => handleNavigate('/dashboard', e)} className="text-sm font-semibold text-slate-700 hover:text-indigo-500 transition cursor-pointer">
                 Client Portal
               </button>
-              <button onClick={(e) => handleNavigate('/onboarding', e)} className="inline-flex items-center justify-center px-4 h-9 text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg shadow-sm transition cursor-pointer">
+              <button onClick={(e) => handleNavigate('/onboarding', e, 'Nav - Get Started')} className="inline-flex items-center justify-center px-4 h-9 text-xs font-semibold text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg shadow-sm transition cursor-pointer">
                 Get Started
               </button>
             </div>
@@ -262,7 +293,7 @@ export default function LandingPage() {
               We build, manage, and scale your custom automated workflows and AI agents for a flat monthly subscription. Get the power of an elite in-house operations engineer at a fraction of the cost.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <button onClick={(e) => handleNavigate('/onboarding', e)}
+              <button onClick={(e) => handleNavigate('/onboarding', e, 'Hero - Start Automating Now')}
                 className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold text-white bg-indigo-500 hover:bg-indigo-600 rounded-xl shadow-md transition-all duration-200 cursor-pointer">
                 Start Automating Now <ArrowRight className="w-5 h-5 ml-2" />
               </button>
@@ -427,12 +458,7 @@ export default function LandingPage() {
           </div>
 
           <div className="relative flex justify-center">
-            <img
-              src="/workflow-diagram.svg"
-              alt="Agency automation workflow diagram: Lead Capture via web forms → AI Qualification with GPT → CRM Sync to HubSpot or Salesforce → Slack Alert to sales team"
-              loading="lazy"
-              className="w-full max-w-5xl h-auto rounded-2xl shadow-2xl shadow-indigo-500/5"
-            />
+            <WorkflowDiagram className="w-full max-w-5xl h-auto rounded-2xl shadow-2xl shadow-indigo-500/5" />
           </div>
 
           {/* Feature highlights under the diagram */}
@@ -734,114 +760,122 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            {/* Product 1: Template Pack */}
-            <div className="group bg-slate-50 border border-slate-200 hover:border-indigo-200 rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:bg-white">
+            {/* Product 1: Template Pack — Best for quick wins */}
+            <div className="group relative bg-slate-50 border border-slate-200 hover:border-indigo-300 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:bg-white">
+              <div className="absolute top-0 right-6 -translate-y-1/2 no-print">
+                <span className="text-[8px] font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm">
+                  Best for quick wins
+                </span>
+              </div>
               <div className="flex items-start justify-between mb-4">
-                <div className="p-2.5 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors">
-                  <Layers className="w-5 h-5 text-indigo-500" />
+                <div className="p-2.5 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 group-hover:scale-110 transition-all duration-300">
+                  <Layers className="w-5 h-5 text-indigo-500 group-hover:scale-110 transition-transform duration-300" />
                 </div>
                 <span className="text-[9px] font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                   One-Time
                 </span>
               </div>
-              <h3 className="text-base font-bold text-slate-900 mb-1">Template Pack</h3>
+              <h3 className="text-base font-bold text-slate-900 mb-1 group-hover:text-indigo-600 transition-colors">Template Pack</h3>
               <p className="text-[10px] font-semibold text-amber-600 uppercase tracking-wider mb-2">Lead Gen Essentials</p>
               <p className="text-xs text-slate-500 leading-relaxed mb-4">
                 3 pre-built automation templates for lead capture, CRM sync, and follow-up. Ready to deploy in your stack.
               </p>
-              <div className="flex items-baseline mb-4">
-                <span className="text-2xl font-black text-slate-900">$149</span>
+              <div className="flex items-baseline mb-4 group-hover:scale-105 transition-transform duration-300 origin-left">
+                <span className="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">$149</span>
                 <span className="text-xs text-slate-400 ml-1.5 font-medium">one-time</span>
               </div>
               <ul className="space-y-2 mb-5">
                 {['Lead capture → CRM template', 'Auto follow-up sequence', 'Slack notification pipeline'].map((item, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <Check className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5" />
-                    <span className="text-[11px] text-slate-600">{item}</span>
+                    <Check className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                    <span className="text-[11px] text-slate-600 group-hover:text-slate-900 transition-colors">{item}</span>
                   </li>
                 ))}
               </ul>
               <a
-                href="https://buy.stripe.com"
+                href="https://buy.stripe.com/28E3cvdXS0h29Okcno5wI07"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200"
+                onClick={() => trackInitiateCheckout('template_pack')}
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 group/btn"
               >
-                Buy Templates <ArrowRight className="w-3 h-3" />
+                Buy Templates <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform duration-200" />
               </a>
             </div>
 
             {/* Product 2: Strategy Session */}
-            <div className="group bg-slate-50 border border-slate-200 hover:border-indigo-200 rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:bg-white">
+            <div className="group bg-slate-50 border border-slate-200 hover:border-teal-300 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:bg-white">
               <div className="flex items-start justify-between mb-4">
-                <div className="p-2.5 bg-teal-50 rounded-xl group-hover:bg-teal-100 transition-colors">
-                  <BookOpen className="w-5 h-5 text-teal-500" />
+                <div className="p-2.5 bg-teal-50 rounded-xl group-hover:bg-teal-100 group-hover:scale-110 transition-all duration-300">
+                  <BookOpen className="w-5 h-5 text-teal-500 group-hover:scale-110 transition-transform duration-300" />
                 </div>
                 <span className="text-[9px] font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                   One-Time
                 </span>
               </div>
-              <h3 className="text-base font-bold text-slate-900 mb-1">Strategy Session</h3>
+              <h3 className="text-base font-bold text-slate-900 mb-1 group-hover:text-teal-600 transition-colors">Strategy Session</h3>
               <p className="text-[10px] font-semibold text-teal-600 uppercase tracking-wider mb-2">Workflow Audit & Roadmap</p>
               <p className="text-xs text-slate-500 leading-relaxed mb-4">
                 60-minute deep dive with a senior automation engineer. Get a prioritized roadmap of your biggest automation wins.
               </p>
-              <div className="flex items-baseline mb-4">
-                <span className="text-2xl font-black text-slate-900">$299</span>
+              <div className="flex items-baseline mb-4 group-hover:scale-105 transition-transform duration-300 origin-left">
+                <span className="text-2xl font-black text-slate-900 group-hover:text-teal-600 transition-colors">$299</span>
                 <span className="text-xs text-slate-400 ml-1.5 font-medium">one-time</span>
               </div>
               <ul className="space-y-2 mb-5">
                 {['Full tech stack audit', 'Top 3 automation opportunities', 'Custom roadmap document'].map((item, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <Check className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5" />
-                    <span className="text-[11px] text-slate-600">{item}</span>
+                    <Check className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                    <span className="text-[11px] text-slate-600 group-hover:text-slate-900 transition-colors">{item}</span>
                   </li>
                 ))}
               </ul>
               <a
-                href="https://buy.stripe.com"
+                href="https://buy.stripe.com/7sYfZh7zu0h29Ok9bc5wI08"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200"
+                onClick={() => trackInitiateCheckout('strategy_session')}
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 group/btn"
               >
-                Book Session <ArrowRight className="w-3 h-3" />
+                Book Session <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform duration-200" />
               </a>
             </div>
 
             {/* Product 3: Single Build */}
-            <div className="group bg-slate-50 border border-slate-200 hover:border-indigo-200 rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:bg-white">
+            <div className="group bg-slate-50 border border-slate-200 hover:border-indigo-300 rounded-2xl p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:bg-white">
               <div className="flex items-start justify-between mb-4">
-                <div className="p-2.5 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors">
-                  <Zap className="w-5 h-5 text-indigo-500" />
+                <div className="p-2.5 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 group-hover:scale-110 transition-all duration-300">
+                  <Zap className="w-5 h-5 text-indigo-500 group-hover:scale-110 transition-transform duration-300" />
                 </div>
                 <span className="text-[9px] font-bold px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                   One-Time
                 </span>
               </div>
-              <h3 className="text-base font-bold text-slate-900 mb-1">Single Build</h3>
+              <h3 className="text-base font-bold text-slate-900 mb-1 group-hover:text-indigo-600 transition-colors">Single Build</h3>
               <p className="text-[10px] font-semibold text-indigo-600 uppercase tracking-wider mb-2">Custom Integration</p>
               <p className="text-xs text-slate-500 leading-relaxed mb-4">
                 One custom integration or workflow, built and deployed by our engineers. Includes 30 days of post-launch support.
               </p>
-              <div className="flex items-baseline mb-4">
-                <span className="text-2xl font-black text-slate-900">$499</span>
+              <div className="flex items-baseline mb-4 group-hover:scale-105 transition-transform duration-300 origin-left">
+                <span className="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">$499</span>
                 <span className="text-xs text-slate-400 ml-1.5 font-medium">one-time</span>
               </div>
               <ul className="space-y-2 mb-5">
                 {['Custom API integration', 'Zapier/Make/n8n workflow', '30-day support included'].map((item, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <Check className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5" />
-                    <span className="text-[11px] text-slate-600">{item}</span>
+                    <Check className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                    <span className="text-[11px] text-slate-600 group-hover:text-slate-900 transition-colors">{item}</span>
                   </li>
                 ))}
               </ul>
               <a
-                href="https://buy.stripe.com"
+                href="https://buy.stripe.com/4gM28r9HC5Bme4A9bc5wI09"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200"
+                onClick={() => trackInitiateCheckout('single_build')}
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 group/btn"
               >
-                Order Build <ArrowRight className="w-3 h-3" />
+                Order Build <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform duration-200" />
               </a>
             </div>
           </div>
