@@ -30,6 +30,11 @@ import {
 
 import { initEmail, isEmailReady, sendLeadMagnet } from './email.js';
 
+import {
+  lookupClientByEmail, lookupClientById,
+  getClientMetrics, getClientWorkflows, upsertClientMetrics
+} from './portal.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = path.resolve(__dirname, '..', 'dist');
 
@@ -298,13 +303,13 @@ app.post('/api/stripe/create-checkout-session', async (req, res) => {
     return res.status(503).json({ error: 'Stripe not initialized. Set STRIPE_SECRET_KEY.' });
   }
   try {
-    const { clientId, plan } = req.body;
+    const { clientId, plan, utm_source = '', utm_medium = '', utm_campaign = '' } = req.body;
     if (!clientId || !plan) {
       return res.status(400).json({ error: 'Missing required fields: clientId, plan' });
     }
     const successUrl = `${req.protocol}://${req.get('host')}/dashboard?onboarded=true&clientId=${clientId}&plan=${plan}`;
     const cancelUrl = `${req.protocol}://${req.get('host')}/onboarding?plan=${plan}`;
-    const result = await createCheckoutSession(clientId, plan, successUrl, cancelUrl);
+    const result = await createCheckoutSession(clientId, plan, successUrl, cancelUrl, { utm_source, utm_medium, utm_campaign });
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -388,6 +393,72 @@ app.get('/api/purchases', (req, res) => {
   try {
     const rows = runSql('SELECT * FROM purchases ORDER BY createdAt DESC LIMIT 100');
     res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// CLIENT PORTAL ROUTES
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Portal Login (email lookup) ──────────────────────────────
+app.post('/api/portal/login', (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+    const client = lookupClientByEmail(email);
+    if (!client) return res.status(404).json({ error: 'No client found with that email' });
+    // Generate a simple portal token (mock auth)
+    const token = Buffer.from(`${client.id}:${Date.now()}`).toString('base64');
+    res.json({ success: true, clientId: client.id, companyName: client.companyName, contactName: client.contactName, token });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Portal Client Info ────────────────────────────────────
+app.get('/api/portal/client', (req, res) => {
+  try {
+    const clientId = req.query.clientId || req.headers['x-client-id'];
+    if (!clientId) return res.status(401).json({ error: 'Missing client ID' });
+    const client = lookupClientById(clientId);
+    if (!client) return res.status(404).json({ error: 'Client not found' });
+    const metrics = getClientMetrics(clientId);
+    const workflows = getClientWorkflows(clientId);
+    res.json({ client, metrics, workflows });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Portal Metrics ───────────────────────────────────────────
+app.get('/api/portal/metrics/:clientId', (req, res) => {
+  try {
+    const metrics = getClientMetrics(req.params.clientId);
+    res.json(metrics || { workflowsTotal: 0, tasksMTD: 0, hoursSaved: 0, valueCreated: 0 });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Portal Workflows ─────────────────────────────────────────
+app.get('/api/portal/workflows/:clientId', (req, res) => {
+  try {
+    const workflows = getClientWorkflows(req.params.clientId);
+    res.json(workflows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Admin: Upsert Client Metrics ────────────────────────────
+app.post('/api/admin/metrics', (req, res) => {
+  try {
+    const { clientId, workflowsTotal, tasksMTD, hoursSaved, valueCreated } = req.body;
+    if (!clientId) return res.status(400).json({ error: 'clientId required' });
+    upsertClientMetrics({ clientId, workflowsTotal, tasksMTD, hoursSaved, valueCreated });
+    res.json({ success: true, message: `Metrics updated for ${clientId}` });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

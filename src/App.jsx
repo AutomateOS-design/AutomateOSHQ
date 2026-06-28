@@ -6,6 +6,9 @@ import DashboardPage from './pages/DashboardPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import AdminPage from './pages/AdminPage';
 import LeadMagnetPage from './pages/LeadMagnetPage';
+import AuditPage from './pages/AuditPage';
+import TemplatesPage from './pages/TemplatesPage';
+import ClientPortal from './pages/ClientPortal';
 
 function App() {
   return (
@@ -14,9 +17,12 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/portal" element={<ClientPortal />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/lead-magnet" element={<LeadMagnetPage />} />
+        <Route path="/audit" element={<AuditPage />} />
+        <Route path="/templates" element={<TemplatesPage />} />
       </Routes>
     </Router>
   );

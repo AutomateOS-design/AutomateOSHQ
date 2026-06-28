@@ -74,16 +74,31 @@ export function updateRequest(id, data, token) {
   return request(`/requests/${id}`, { method: 'PUT', body: data, auth: token });
 }
 
+// ── Leads ─────────────────────────────────────────────────────
+export function createLead(data) {
+  return request('/leads', { method: 'POST', body: data });
+}
+
+export function fetchLeads() {
+  return request('/leads');
+}
+
 // ── Admin Stats ───────────────────────────────────────────────
 export function fetchAdminStats(token) {
   return request('/admin/stats', { auth: token });
 }
 
 // ── Stripe Subscriptions ──────────────────────────────────────
-export function createCheckoutSession(clientId, plan) {
+export function createCheckoutSession(clientId, plan, utmParams = {}) {
   return request('/stripe/create-checkout-session', {
     method: 'POST',
-    body: { clientId, plan }
+    body: { 
+      clientId, 
+      plan, 
+      utm_source: utmParams.utm_source || '',
+      utm_medium: utmParams.utm_medium || '',
+      utm_campaign: utmParams.utm_campaign || ''
+    }
   });
 }
 
@@ -100,6 +115,34 @@ export function fetchSubscription(clientId) {
 
 export function fetchPriceIds() {
   return request('/stripe/price-ids');
+}
+
+// ── Client Portal ─────────────────────────────────────────────
+export function portalLogin(email) {
+  return request('/portal/login', { method: 'POST', body: { email } });
+}
+export function fetchPortalClient(clientId) {
+  return fetch(`/api/portal/client?clientId=${clientId}`).then(r => r.json());
+}
+export function fetchPortalMetrics(clientId) {
+  return request(`/portal/metrics/${clientId}`);
+}
+export function fetchPortalWorkflows(clientId) {
+  return request(`/portal/workflows/${clientId}`);
+}
+
+// ── Stripe One-Time Products ──────────────────────────────────
+export function createProductCheckoutSession(productSlug, email, utmParams = {}) {
+  return request('/stripe/create-product-checkout-session', {
+    method: 'POST',
+    body: { 
+      productSlug, 
+      email,
+      utm_source: utmParams.utm_source || '',
+      utm_medium: utmParams.utm_medium || '',
+      utm_campaign: utmParams.utm_campaign || ''
+    }
+  });
 }
 
 // ── Health ────────────────────────────────────────────────────
