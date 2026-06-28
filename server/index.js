@@ -24,8 +24,8 @@ import {
 
 import {
   initStripe, isStripeReady,
-  createCheckoutSession, createPortalSession, getClientSubscription,
-  handleWebhook, PRICE_IDS
+  createCheckoutSession, createProductCheckoutSession, createPortalSession, getClientSubscription,
+  handleWebhook, PRICE_IDS, ONE_TIME_PRODUCTS
 } from './stripe.js';
 
 import { initEmail, isEmailReady, sendLeadMagnet } from './email.js';
@@ -355,6 +355,41 @@ app.get('/api/subscriptions/:clientId', (req, res) => {
 // ─── Get Price IDs for frontend ───────────────────────────────
 app.get('/api/stripe/price-ids', (req, res) => {
   res.json(PRICE_IDS);
+});
+
+// ─── One-Time Products & Purchases ───────────────────────────
+app.get('/api/products', (req, res) => {
+  const products = Object.entries(ONE_TIME_PRODUCTS).map(([slug, p]) => ({
+    slug, name: p.name, price: p.price, description: p.desc
+  }));
+  res.json(products);
+});
+
+app.post('/api/products/checkout', async (req, res) => {
+  try {
+    const { productSlug, email } = req.body;
+    if (!productSlug || !email) {
+      return res.status(400).json({ error: 'Missing required fields: productSlug, email' });
+    }
+    const baseUrl = process.env.SITE_URL || `http://localhost:${PORT}`;
+    const result = await createProductCheckoutSession(
+      productSlug, email,
+      `${baseUrl}/dashboard?purchased=${productSlug}`,
+      `${baseUrl}/#products`
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/purchases', (req, res) => {
+  try {
+    const rows = runSql('SELECT * FROM purchases ORDER BY createdAt DESC LIMIT 100');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ═══════════════════════════════════════════════════════════════

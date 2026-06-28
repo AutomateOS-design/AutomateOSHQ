@@ -7,6 +7,7 @@
 
 import Stripe from 'stripe';
 import { runSql } from './db.js';
+import { isEmailReady, sendProductDelivery } from './email.js';
 
 let stripe = null;
 
@@ -30,6 +31,18 @@ export const PRICE_IDS = {
   dedicated: 'price_1TlkKmDHCeB3dcqL0zgarzuS',
   solo: 'price_1TmHdjDHCeB3dcqL9aypFXcT',
   enterprise: 'price_1TmHdqDHCeB3dcqLURKLxWGA',
+};
+
+/**
+ * One-time product definitions for bite-sized purchases.
+ * Maps product slugs to Stripe Price IDs and display info.
+ */
+export const ONE_TIME_PRODUCTS = {
+  'agency-lead-intake': { priceId: 'price_1TkLmDHCeB3dcqL9aBcDeFgH', name: 'The Agency Lead Intake Engine', price: 19900, desc: 'Pre-configured automation for FB/LI Ads lead capture with AI enrichment' },
+  'ai-social-repurposing': { priceId: 'price_1TkLnDHCeB3dcqL0zGaRstUv', name: 'AI Social Repurposing Blueprint', price: 9700, desc: 'Template & guide to auto-generate 5 hooks + weekly content from one video' },
+  'ecommerce-profit-recovery': { priceId: 'price_1TkLoDHCeB3dcqLdVy6WxYz', name: 'Ecommerce Profit Recovery System', price: 49900, desc: 'Klaviyo + AI cart recovery orchestration with personalized emails' },
+  'ops-health-audit': { priceId: 'price_1TkLpDHCeB3dcqLURKLmNoP', name: 'The 60-Minute Ops Health Audit', price: 29900, desc: '1-on-1 strategy session with technical automation roadmap' },
+  'ceo-growth-dashboard': { priceId: 'price_1TkLqDHCeB3dcqL9aBcDeFgH', name: 'The CEO Growth Dashboard', price: 34900, desc: 'Custom Airtable/Softr dashboard aggregating Shopify, Stripe, Meta Ads data' },
 };
 
 const PLAN_FROM_PRICE = {};
@@ -56,6 +69,27 @@ export async function createCheckoutSession(clientId, plan, successUrl, cancelUr
   });
 
   return { sessionId: session.id, url: session.url };
+}
+
+/**
+ * Create a Stripe Checkout Session for a one-time product purchase.
+ */
+export async function createProductCheckoutSession(productSlug, email, successUrl, cancelUrl) {
+  if (!stripe) throw new Error('Stripe not initialized — check STRIPE_SECRET_KEY');
+  const product = ONE_TIME_PRODUCTS[productSlug];
+  if (!product) throw new Error(`Invalid product slug: ${productSlug}`);
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    line_items: [{ price: product.priceId, quantity: 1 }],
+    customer_email: email,
+    metadata: { productName: product.name, priceId: product.priceId },
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+    allow_promotion_codes: true,
+  });
+
+  return { sessionId: session.id, url: session.url, product: product };
 }
 
 /**
@@ -109,6 +143,37 @@ export async function handleWebhook(rawBody, signature, webhookSecret) {
     case 'checkout.session.completed': {
       const session = event.data.object;
       const clientId = session.metadata?.clientId || session.client_reference_id;
+      const customerEmail = session.customer_details?.email || session.metadata?.email || '';
+
+      // Handle one-time payment products (bite-sized purchases)
+      if (session.mode === 'payment') {
+        const priceId = session.metadata?.priceId || '';
+        const productName = session.metadata?.productName || 'AutomateOS Product';
+        const amountTotal = session.amount_total || 0;
+        const customerName = session.customer_details?.name || customerEmail?.split('@')[0] || 'Valued Customer';
+
+        // Log the purchase
+        runSql(`INSERT INTO purchases (sessionId, clientEmail, clientName, productName, productPrice, priceId)
+          VALUES (${esc(session.id)}, ${esc(customerEmail)}, ${esc(customerName)}, ${esc(productName)}, ${amountTotal}, ${esc(priceId)})`);
+        console.log(`💰 One-time purchase: ${productName} by ${customerEmail} (${session.id})`);
+
+        // Send fulfillment email
+        if (isEmailReady()) {
+          sendProductDelivery({
+            email: customerEmail,
+            name: customerName,
+            productName,
+            productPrice: amountTotal
+          }).then(result => {
+            if (result.success) {
+              runSql(`UPDATE purchases SET fulfilled = 1 WHERE sessionId = ${esc(session.id)}`);
+            }
+          }).catch(err => console.error('Fulfillment email error:', err.message));
+        }
+        break;
+      }
+
+      // Handle subscription purchases (existing logic)
       if (!clientId) break;
 
       const subscriptionId = session.subscription;

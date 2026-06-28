@@ -104,3 +104,76 @@ export async function sendLeadMagnet({ firstName, email, agencyName }) {
     return { success: false, message: err.message };
   }
 }
+
+/**
+ * Send a product delivery email with download links for a one-time purchase.
+ * @param {object} params
+ * @param {string} params.email - Buyer's email
+ * @param {string} params.name - Buyer's name
+ * @param {string} params.productName - Product name
+ * @param {number} params.productPrice - Price paid in cents
+ * @returns {Promise<{success: boolean, message: string}>}
+ */
+export async function sendProductDelivery({ email, name, productName, productPrice }) {
+  if (!initialized || !resend) {
+    return { success: false, message: 'Email delivery not initialized (no RESEND_API_KEY)' };
+  }
+
+  const productTitle = productName || 'AutomateOS Product';
+  const priceDisplay = productPrice ? `${(productPrice / 100).toFixed(0)}` : '';
+
+  const downloadUrls = {
+    'AI Social Repurposing Blueprint': 'https://automateos.io/downloads/ai-social-repurposing-blueprint.pdf',
+    'The Agency Lead Intake Engine': 'https://automateos.io/downloads/agency-lead-intake-guide.pdf',
+    'Ecommerce Profit Recovery System': 'https://automateos.io/downloads/ecommerce-profit-recovery.pdf',
+    'The CEO Growth Dashboard': 'https://automateos.io/downloads/ceo-growth-dashboard-template.pdf',
+    'The 60-Minute Ops Health Audit': 'https://automateos.io/downloads/ops-health-audit.pdf',
+  };
+
+  const downloadLink = downloadUrls[productTitle] || 'https://automateos.io/lead-magnet';
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'AutomateOS <automateos@ctomail.io>',
+      to: [email],
+      subject: `📥 Your Download: ${productTitle} is ready!`,
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #6366f1, #14b8a6); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center;">
+              <span style="font-size: 28px;">📥</span>
+            </div>
+          </div>
+          <h2 style="font-size: 22px; color: #1e293b; margin-bottom: 8px; text-align: center;">Thanks for your purchase, ${name}!</h2>
+          <p style="color: #64748b; font-size: 15px; text-align: center; margin-bottom: 24px;">
+            Your <strong style="color: #1e293b;">${productTitle}</strong> ${priceDisplay} is ready to download.
+          </p>
+          <div style="text-align: center; margin: 28px 0;">
+            <a href="${downloadLink}" style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #6366f1, #14b8a6); color: #fff; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 12px;">
+              Download Your Product →
+            </a>
+          </div>
+          <p style="color: #64748b; font-size: 14px; line-height: 1.6; margin-bottom: 8px;">
+            This download link is unique to your purchase. If you have any issues accessing your files, reply to this email and we'll help you right away.
+          </p>
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+          <p style="color: #94a3b8; font-size: 12px; margin: 0; text-align: center;">
+            Best,<br/>The AutomateOS Team<br/>
+            <span style="color: #cbd5e1;">Questions? Contact us at automateos@ctomail.io</span>
+          </p>
+        </div>
+      `
+    });
+
+    if (error) {
+      console.error(`❌ Product delivery email error for ${email}:`, error);
+      return { success: false, message: error.message || 'Resend API error' };
+    }
+
+    console.log(`✅ Product "${productTitle}" delivered to ${email} (id: ${data?.id})`);
+    return { success: true, message: 'Product delivery email sent', id: data?.id };
+  } catch (err) {
+    console.error(`❌ Failed to send product delivery to ${email}:`, err.message);
+    return { success: false, message: err.message };
+  }
+}
