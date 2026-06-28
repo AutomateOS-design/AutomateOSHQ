@@ -252,12 +252,12 @@ app.get('/sitemap.xml', (req, res) => {
 // ─── Lead Magnet Capture ─────────────────────────────────────
 app.post('/api/leads', async (req, res) => {
   try {
-    const { firstName, email, agencyName, source = 'landing-page' } = req.body;
+    const { firstName, email, agencyName, source = 'landing-page', utm_source = '', utm_medium = '', utm_campaign = '' } = req.body;
     if (!firstName || !email || !agencyName) {
       return res.status(400).json({ error: 'Missing required fields: firstName, email, agencyName' });
     }
     const esc = (s) => s != null ? `'${String(s).replace(/'/g, "''")}'` : 'NULL';
-    runSql(`INSERT INTO leads (firstName, email, agencyName, source) VALUES (${esc(firstName)}, ${esc(email)}, ${esc(agencyName)}, ${esc(source)})`);
+    runSql(`INSERT INTO leads (firstName, email, agencyName, source, utm_source, utm_medium, utm_campaign) VALUES (${esc(firstName)}, ${esc(email)}, ${esc(agencyName)}, ${esc(source)}, ${esc(utm_source)}, ${esc(utm_medium)}, ${esc(utm_campaign)})`);
 
     // Send the lead magnet guide via Resend (async, non-blocking)
     let emailResult = null;
@@ -367,7 +367,7 @@ app.get('/api/products', (req, res) => {
 
 app.post('/api/products/checkout', async (req, res) => {
   try {
-    const { productSlug, email } = req.body;
+    const { productSlug, email, utm_source = '', utm_medium = '', utm_campaign = '' } = req.body;
     if (!productSlug || !email) {
       return res.status(400).json({ error: 'Missing required fields: productSlug, email' });
     }
@@ -375,7 +375,8 @@ app.post('/api/products/checkout', async (req, res) => {
     const result = await createProductCheckoutSession(
       productSlug, email,
       `${baseUrl}/dashboard?purchased=${productSlug}`,
-      `${baseUrl}/#products`
+      `${baseUrl}/#products`,
+      { utm_source, utm_medium, utm_campaign }
     );
     res.json(result);
   } catch (err) {

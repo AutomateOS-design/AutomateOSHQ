@@ -72,7 +72,7 @@ export async function createCheckoutSession(clientId, plan, successUrl, cancelUr
 /**
  * Create a Stripe Checkout Session for a one-time product purchase.
  */
-export async function createProductCheckoutSession(productSlug, email, successUrl, cancelUrl) {
+export async function createProductCheckoutSession(productSlug, email, successUrl, cancelUrl, utmParams = {}) {
   if (!stripe) throw new Error('Stripe not initialized — check STRIPE_SECRET_KEY');
   const product = ONE_TIME_PRODUCTS[productSlug];
   if (!product) throw new Error(`Invalid product slug: ${productSlug}`);
@@ -81,7 +81,13 @@ export async function createProductCheckoutSession(productSlug, email, successUr
     mode: 'payment',
     line_items: [{ price: product.priceId, quantity: 1 }],
     customer_email: email,
-    metadata: { productName: product.name, priceId: product.priceId },
+    metadata: {
+      productName: product.name,
+      priceId: product.priceId,
+      utm_source: utmParams.utm_source || '',
+      utm_medium: utmParams.utm_medium || '',
+      utm_campaign: utmParams.utm_campaign || '',
+    },
     success_url: successUrl,
     cancel_url: cancelUrl,
     allow_promotion_codes: true,
@@ -149,10 +155,13 @@ export async function handleWebhook(rawBody, signature, webhookSecret) {
         const productName = session.metadata?.productName || 'AutomateOS Product';
         const amountTotal = session.amount_total || 0;
         const customerName = session.customer_details?.name || customerEmail?.split('@')[0] || 'Valued Customer';
+        const utmSource = session.metadata?.utm_source || '';
+        const utmMedium = session.metadata?.utm_medium || '';
+        const utmCampaign = session.metadata?.utm_campaign || '';
 
         // Log the purchase
-        runSql(`INSERT INTO purchases (sessionId, clientEmail, clientName, productName, productPrice, priceId)
-          VALUES (${esc(session.id)}, ${esc(customerEmail)}, ${esc(customerName)}, ${esc(productName)}, ${amountTotal}, ${esc(priceId)})`);
+        runSql(`INSERT INTO purchases (id, email, productId, priceId, amountCents, status, utm_source, utm_medium, utm_campaign)
+          VALUES (${esc(session.id)}, ${esc(customerEmail)}, ${esc(productName)}, ${esc(priceId)}, ${amountTotal}, 'completed', ${esc(utmSource)}, ${esc(utmMedium)}, ${esc(utmCampaign)})`);
         console.log(`💰 One-time purchase: ${productName} by ${customerEmail} (${session.id})`);
 
         // Send fulfillment email
@@ -164,7 +173,7 @@ export async function handleWebhook(rawBody, signature, webhookSecret) {
             productPrice: amountTotal
           }).then(result => {
             if (result.success) {
-              runSql(`UPDATE purchases SET fulfilled = 1 WHERE sessionId = ${esc(session.id)}`);
+              runSql(`UPDATE purchases SET status = 'fulfilled' WHERE id = ${esc(session.id)}`);
             }
           }).catch(err => console.error('Fulfillment email error:', err.message));
         }
