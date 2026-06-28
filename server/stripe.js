@@ -38,11 +38,9 @@ export const PRICE_IDS = {
  * Maps product slugs to Stripe Price IDs and display info.
  */
 export const ONE_TIME_PRODUCTS = {
-  'agency-lead-intake': { priceId: 'price_1TkLmDHCeB3dcqL9aBcDeFgH', name: 'The Agency Lead Intake Engine', price: 19900, desc: 'Pre-configured automation for FB/LI Ads lead capture with AI enrichment' },
-  'ai-social-repurposing': { priceId: 'price_1TkLnDHCeB3dcqL0zGaRstUv', name: 'AI Social Repurposing Blueprint', price: 9700, desc: 'Template & guide to auto-generate 5 hooks + weekly content from one video' },
-  'ecommerce-profit-recovery': { priceId: 'price_1TkLoDHCeB3dcqLdVy6WxYz', name: 'Ecommerce Profit Recovery System', price: 49900, desc: 'Klaviyo + AI cart recovery orchestration with personalized emails' },
-  'ops-health-audit': { priceId: 'price_1TkLpDHCeB3dcqLURKLmNoP', name: 'The 60-Minute Ops Health Audit', price: 29900, desc: '1-on-1 strategy session with technical automation roadmap' },
-  'ceo-growth-dashboard': { priceId: 'price_1TkLqDHCeB3dcqL9aBcDeFgH', name: 'The CEO Growth Dashboard', price: 34900, desc: 'Custom Airtable/Softr dashboard aggregating Shopify, Stripe, Meta Ads data' },
+  'template-pack': { priceId: 'price_1Tn9BkDHCeB3dcqL3KtQ64bI', name: 'Template Pack (Lead Gen Essentials)', price: 19900, desc: 'Pre-configured automation templates for capturing leads from Facebook/LinkedIn Ads with AI enrichment' },
+  'automation-audit': { priceId: 'price_1TmHdYDHCeB3dcqL6bNdTc8x', name: 'Automation Audit (One-time)', price: 29900, desc: '60-minute deep-dive session with prioritized automation roadmap for your business' },
+  'single-integration': { priceId: 'price_1Tn9BmDHCeB3dcqLuaDW2YFu', name: 'Single Integration Build', price: 149900, desc: 'Custom high-complexity workflow build with 30 days of post-launch support' },
 };
 
 const PLAN_FROM_PRICE = {};

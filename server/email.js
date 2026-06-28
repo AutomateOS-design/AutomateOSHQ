@@ -123,11 +123,9 @@ export async function sendProductDelivery({ email, name, productName, productPri
   const priceDisplay = productPrice ? `${(productPrice / 100).toFixed(0)}` : '';
 
   const downloadUrls = {
-    'AI Social Repurposing Blueprint': 'https://automateos.io/downloads/ai-social-repurposing-blueprint.pdf',
-    'The Agency Lead Intake Engine': 'https://automateos.io/downloads/agency-lead-intake-guide.pdf',
-    'Ecommerce Profit Recovery System': 'https://automateos.io/downloads/ecommerce-profit-recovery.pdf',
-    'The CEO Growth Dashboard': 'https://automateos.io/downloads/ceo-growth-dashboard-template.pdf',
-    'The 60-Minute Ops Health Audit': 'https://automateos.io/downloads/ops-health-audit.pdf',
+    'Template Pack (Lead Gen Essentials)': 'https://automateos.io/downloads/template-pack-lead-gen.pdf',
+    'Automation Audit (One-time)': 'https://automateos.io/downloads/automation-audit-report.pdf',
+    'Single Integration Build': 'https://automateos.io/downloads/single-integration-guide.pdf',
   };
 
   const downloadLink = downloadUrls[productTitle] || 'https://automateos.io/lead-magnet';
