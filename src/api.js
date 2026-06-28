@@ -88,6 +88,29 @@ export function fetchAdminStats(token) {
   return request('/admin/stats', { auth: token });
 }
 
+// ── Admin Lead Management ─────────────────────────────────────
+export function fetchAdminLeads(token, params = {}) {
+  const query = new URLSearchParams(params).toString();
+  return request(`/admin/leads${query ? '?' + query : ''}`, { auth: token });
+}
+
+export function updateLeadScore(id, score, token) {
+  return request(`/admin/leads/${id}/score`, { method: 'PUT', body: { score }, auth: token });
+}
+
+export function exportLeadsCsv(token) {
+  return fetch('/api/admin/leads/export', {
+    headers: { Authorization: `Bearer ${token}` }
+  }).then(r => r.blob()).then(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `automateos-leads-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+
 // ── Stripe Subscriptions ──────────────────────────────────────
 export function createCheckoutSession(clientId, plan, utmParams = {}) {
   return request('/stripe/create-checkout-session', {

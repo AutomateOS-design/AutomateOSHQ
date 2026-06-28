@@ -29,6 +29,7 @@ import {
 } from './stripe.js';
 
 import { initEmail, isEmailReady, sendLeadMagnet } from './email.js';
+import { processNurtureSequence } from './nurture.js';
 
 import {
   lookupClientByEmail, lookupClientById,
@@ -464,6 +465,57 @@ app.post('/api/admin/metrics', (req, res) => {
   }
 });
 
+// ─── Admin: Lead Management ──────────────────────────────────
+app.get('/api/admin/leads', requireAdmin, (req, res) => {
+  try {
+    const { search, campaign, agency } = req.query;
+    let sql = 'SELECT * FROM leads';
+    const conditions = [];
+    if (search) conditions.push(`(firstName LIKE '%${search.replace(/'/g, "''")}%' OR email LIKE '%${search.replace(/'/g, "''")}%' OR agencyName LIKE '%${search.replace(/'/g, "''")}%')`);
+    if (campaign) conditions.push(`utm_campaign LIKE '%${campaign.replace(/'/g, "''")}%'`);
+    if (agency) conditions.push(`agencyName LIKE '%${agency.replace(/'/g, "''")}%'`);
+    if (conditions.length > 0) sql += ' WHERE ' + conditions.join(' AND ');
+    sql += ' ORDER BY createdAt DESC';
+    const rows = runSql(sql);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/admin/leads/:id/score', requireAdmin, (req, res) => {
+  try {
+    const { score } = req.body;
+    const id = parseInt(req.params.id);
+    if (isNaN(score) || score < 0 || score > 5) return res.status(400).json({ error: 'Score must be 0-5' });
+    runSql(`UPDATE leads SET score = ${score} WHERE id = ${id}`);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/admin/leads/export', requireAdmin, (req, res) => {
+  try {
+    const rows = runSql('SELECT * FROM leads ORDER BY createdAt DESC');
+    const headers = ['ID', 'First Name', 'Email', 'Agency', 'Source', 'UTM Source', 'UTM Medium', 'UTM Campaign', 'Score', 'Delivered', 'Created At'];
+    const csv = [
+      headers.join(','),
+      ...rows.map(r => [
+        r.id, `"${(r.firstName || '').replace(/"/g, '""')}"`, `"${(r.email || '').replace(/"/g, '""')}"`,
+        `"${(r.agencyName || '').replace(/"/g, '""')}"`, `"${(r.source || '')}"`,
+        `"${(r.utm_source || '')}"`, `"${(r.utm_medium || '')}"`, `"${(r.utm_campaign || '')}"`,
+        r.score || 0, r.delivered || 0, r.createdAt || ''
+      ].join(','))
+    ].join('\n');
+    res.header('Content-Type', 'text/csv');
+    res.header('Content-Disposition', `attachment; filename="automateos-leads-${new Date().toISOString().split('T')[0]}.csv"`);
+    res.send(csv);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ═══════════════════════════════════════════════════════════════
 // STATIC FILE SERVING (React frontend)
 // ═══════════════════════════════════════════════════════════════
@@ -477,6 +529,21 @@ app.use((req, res) => {
   }
   res.sendFile(path.join(DIST_DIR, 'index.html'));
 });
+
+// ─── Automated Nurture Sequence Worker ───────────────────────
+const NURTURE_INTERVAL_MS = 60 * 60 * 1000; // Check every hour
+setInterval(() => {
+  if (isEmailReady()) {
+    processNurtureSequence().catch(err => console.error('Nurture Worker Error:', err.message));
+  }
+}, NURTURE_INTERVAL_MS);
+
+// Run once on startup after a short delay
+setTimeout(() => {
+  if (isEmailReady()) {
+    processNurtureSequence().catch(err => console.error('Initial Nurture Run Error:', err.message));
+  }
+}, 10000);
 
 // ── Start Server ──────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
