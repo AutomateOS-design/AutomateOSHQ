@@ -51,7 +51,7 @@ for (const [plan, priceId] of Object.entries(PRICE_IDS)) {
 /**
  * Create a Stripe Checkout Session for a subscription.
  */
-export async function createCheckoutSession(clientId, plan, successUrl, cancelUrl) {
+export async function createCheckoutSession(clientId, plan, successUrl, cancelUrl, utmParams = {}) {
   if (!stripe) throw new Error('Stripe not initialized — check STRIPE_SECRET_KEY');
   const priceId = PRICE_IDS[plan];
   if (!priceId) throw new Error(`Invalid plan: ${plan}`);
@@ -60,7 +60,13 @@ export async function createCheckoutSession(clientId, plan, successUrl, cancelUr
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
     client_reference_id: clientId,
-    metadata: { clientId, plan },
+    metadata: { 
+      clientId, 
+      plan,
+      utm_source: utmParams.utm_source || '',
+      utm_medium: utmParams.utm_medium || '',
+      utm_campaign: utmParams.utm_campaign || '',
+    },
     success_url: successUrl,
     cancel_url: cancelUrl,
     allow_promotion_codes: true,

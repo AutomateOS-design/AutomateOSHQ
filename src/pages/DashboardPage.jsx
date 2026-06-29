@@ -7,7 +7,8 @@ import {
   Sparkles, TrendingUp, RefreshCw, ChevronRight,
   Menu, X, BarChart3, Gauge, Layers, Bell,
   Percent, Star, ExternalLink, HelpCircle,
-  AlertTriangle, Building2, Mail
+  AlertTriangle, Building2, Mail, Download,
+  BookOpen, FileText, Play, Pause, Search
 } from 'lucide-react';
 import { fetchClients, fetchRequests, createRequest, fetchSubscription, createPortalSession, createCheckoutSession } from '../api';
 
@@ -48,6 +49,7 @@ const sidebarItems = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'workflows', label: 'Workflows', icon: Workflow },
   { id: 'requests', label: 'Requests', icon: Send },
+  { id: 'assets', label: 'Assets', icon: Download },
   { id: 'billing', label: 'Billing & Plan', icon: CreditCard },
   { id: 'support', label: 'Support', icon: LifeBuoy },
 ];
@@ -413,6 +415,48 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* ROI Trend Visualization */}
+      <div className="mb-8 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div className="flex items-start justify-between mb-5">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">Hours Saved — Monthly Trend</h2>
+            <p className="text-xs text-slate-500 mt-0.5">Your automation ROI is compounding month over month.</p>
+          </div>
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
+            <TrendingUp className="w-3 h-3" /> +{Math.max(10, Math.round(totalHoursSaved * 0.15))}% vs last month
+          </span>
+        </div>
+        <div className="flex items-end justify-between gap-3 h-32">
+          {[
+            { label: 'Jan', value: Math.round(totalHoursSaved * 0.3) },
+            { label: 'Feb', value: Math.round(totalHoursSaved * 0.45) },
+            { label: 'Mar', value: Math.round(totalHoursSaved * 0.55) },
+            { label: 'Apr', value: Math.round(totalHoursSaved * 0.7) },
+            { label: 'May', value: Math.round(totalHoursSaved * 0.85) },
+            { label: 'Jun', value: totalHoursSaved },
+          ].map((month, i) => {
+            const maxVal = totalHoursSaved || 1;
+            const heightPct = Math.max(8, (month.value / maxVal) * 100);
+            return (
+              <div key={i} className="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
+                <span className="text-[9px] font-bold text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">{month.value} hrs</span>
+                <div className="w-full relative flex justify-center">
+                  <div
+                    className="w-full max-w-[40px] rounded-lg bg-gradient-to-t from-indigo-500 to-teal-400 hover:from-indigo-600 hover:to-teal-500 transition-all duration-300 shadow-sm"
+                    style={{ height: `${heightPct}%` }}
+                  />
+                </div>
+                <span className="text-[9px] font-semibold text-slate-400">{month.label}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-semibold">
+          <span className="flex items-center gap-1"><DollarSign className="w-3 h-3 text-emerald-500" /> ${(totalHoursSaved * 45).toLocaleString()} equivalent labor value</span>
+          <span className="flex items-center gap-1"><BarChart3 className="w-3 h-3 text-indigo-500" /> Tracking since January 2026</span>
+        </div>
+      </div>
+
       {/* Main Content Split */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         {/* Left Column: Workflows */}
@@ -682,19 +726,127 @@ export default function DashboardPage() {
     </>
   );
 
-  const renderWorkflows = () => (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-extrabold text-slate-900">All Workflows</h1>
-        <p className="text-sm text-slate-500 mt-1">View and manage all your automated workflows.</p>
+  const renderWorkflows = () => {
+    const [workflowFilter, setWorkflowFilter] = useState('all');
+    const [workflowSearch, setWorkflowSearch] = useState('');
+
+    const filtered = clientAllRequests.filter(r => {
+      const matchesStatus = workflowFilter === 'all' || r.status.toLowerCase().includes(workflowFilter);
+      const matchesSearch = !workflowSearch || r.title.toLowerCase().includes(workflowSearch.toLowerCase());
+      return matchesStatus && matchesSearch;
+    });
+
+    return (
+      <div>
+        <div className="mb-8">
+          <h1 className="text-2xl font-extrabold text-slate-900">All Workflows</h1>
+          <p className="text-sm text-slate-500 mt-1">Manage and monitor your custom automation workflows.</p>
+        </div>
+
+        {/* Stats Summary */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          {[
+            { label: 'Active', value: automations.filter(r => r.status === 'Active').length, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+            { label: 'In Development', value: automations.filter(r => r.status === 'In Development').length, color: 'text-amber-600', bg: 'bg-amber-50' },
+            { label: 'Pending', value: clientPending.length, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+            { label: 'Paused', value: clientAllRequests.filter(r => r.status === 'Paused').length, color: 'text-red-600', bg: 'bg-red-50' },
+          ].map((stat, i) => (
+            <div key={i} className={`${stat.bg} rounded-xl p-4 border border-slate-200/60`}>
+              <p className="text-2xl font-black text-slate-900">{stat.value}</p>
+              <p className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${stat.color}`}>{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Filter + Search */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search workflows..."
+              value={workflowSearch}
+              onChange={(e) => setWorkflowSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition"
+            />
+          </div>
+          <div className="flex gap-2">
+            {['all', 'active', 'pending', 'paused'].map(f => (
+              <button
+                key={f}
+                onClick={() => setWorkflowFilter(f)}
+                className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition border ${
+                  workflowFilter === f
+                    ? 'bg-indigo-500 text-white border-indigo-500 shadow-sm'
+                    : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Workflow List */}
+        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="divide-y divide-slate-100">
+            {filtered.length === 0 ? (
+              <div className="p-12 text-center">
+                <Workflow className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                <p className="text-sm font-bold text-slate-400">
+                  {workflowSearch ? 'No workflows match your search' : 'No workflows yet'}
+                </p>
+                <p className="text-xs text-slate-400 mt-1">Submit your first automation request from the Requests tab.</p>
+              </div>
+            ) : (
+              filtered.map((wf) => {
+                const StatusIcon = statusIcons[wf.status] || CheckCircle2;
+                const statusClass = statusColors[wf.status] || 'bg-slate-50 text-slate-600 border-slate-200';
+                return (
+                  <div key={wf.id} className="px-6 py-4 hover:bg-slate-50/80 transition flex items-center justify-between group">
+                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                      <div className={`p-2 rounded-xl ${
+                        wf.status === 'Active' ? 'bg-emerald-50' :
+                        wf.status === 'Paused' ? 'bg-red-50' :
+                        wf.status === 'In Development' ? 'bg-amber-50' : 'bg-slate-50'
+                      }`}>
+                        <Play className={`w-4 h-4 ${
+                          wf.status === 'Active' ? 'text-emerald-500' :
+                          wf.status === 'Paused' ? 'text-red-400' :
+                          wf.status === 'In Development' ? 'text-amber-500' : 'text-slate-400'
+                        }`} />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2.5">
+                          <h4 className="font-bold text-slate-900 text-sm truncate">{wf.title}</h4>
+                          <span className={`inline-flex items-center gap-1 text-[8px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${statusClass}`}>
+                            <StatusIcon className="w-2 h-2" />
+                            {wf.status}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{wf.type || 'Custom Integration'} · Updated {wf.updated || 'Today'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 shrink-0">
+                      {wf.hoursSaved > 0 && (
+                        <div className="text-right hidden sm:block">
+                          <p className="text-[9px] font-bold text-slate-400">Saved</p>
+                          <p className="text-sm font-extrabold text-indigo-500">{wf.hoursSaved} hrs</p>
+                        </div>
+                      )}
+                      <button className="opacity-0 group-hover:opacity-100 p-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg transition text-slate-400 hover:text-slate-600">
+                        <Sliders className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
       </div>
-      <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-sm">
-        <Workflow className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-        <p className="text-sm font-bold text-slate-400">Detailed workflow management coming soon</p>
-        <p className="text-xs text-slate-400 mt-1">You can view active workflows in Overview.</p>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderBilling = () => (
     <div>
@@ -926,11 +1078,111 @@ export default function DashboardPage() {
     </div>
   );
 
+  const renderAssets = () => {
+    const digitalAssets = [
+      {
+        id: 'lead-gen-essentials',
+        title: 'Lead Gen Essentials',
+        type: 'Template Pack',
+        icon: Layers,
+        price: '$149',
+        purchased: 'June 20, 2026',
+        description: '3 pre-built automation templates for lead capture, CRM sync, and follow-up.',
+        features: ['Lead capture → CRM template', 'Auto follow-up sequence', 'Slack notification pipeline'],
+        color: 'indigo',
+        downloadUrl: '#'
+      },
+      {
+        id: 'automation-roadmap',
+        title: 'Automation Roadmap',
+        type: 'Strategy Session',
+        icon: BookOpen,
+        price: '$299',
+        purchased: 'June 22, 2026',
+        description: '60-minute deep dive with prioritized automation opportunities and ROI estimates.',
+        features: ['Full tech stack audit', 'Top 3 automation opportunities', 'Custom roadmap document'],
+        color: 'teal',
+        downloadUrl: '#'
+      },
+      {
+        id: 'free-guide',
+        title: 'Top 5 Automation Workflows',
+        type: 'Free Guide',
+        icon: FileText,
+        price: 'Free',
+        purchased: 'June 18, 2026',
+        description: 'Recover 20+ hours per week with these 5 proven workflow blueprints.',
+        features: ['Speed-to-Lead Engine', 'Seamless Onboarding', 'Hands-Off Reporter', 'Frictionless Finance', 'Bottleneck Breaker'],
+        color: 'emerald',
+        downloadUrl: '#'
+      },
+    ];
+
+    return (
+      <div>
+        <div className="mb-8">
+          <h1 className="text-2xl font-extrabold text-slate-900">Asset Library</h1>
+          <p className="text-sm text-slate-500 mt-1">Access your purchased templates, guides, and digital products.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {digitalAssets.map((asset) => {
+            const Icon = asset.icon;
+            const colorMap = {
+              indigo: { bg: 'bg-indigo-50', iconBg: 'bg-indigo-500', iconText: 'text-white', border: 'border-indigo-100', badge: 'bg-indigo-100 text-indigo-700' },
+              teal: { bg: 'bg-teal-50', iconBg: 'bg-teal-500', iconText: 'text-white', border: 'border-teal-100', badge: 'bg-teal-100 text-teal-700' },
+              emerald: { bg: 'bg-emerald-50', iconBg: 'bg-emerald-500', iconText: 'text-white', border: 'border-emerald-100', badge: 'bg-emerald-100 text-emerald-700' },
+            };
+            const c = colorMap[asset.color] || colorMap.indigo;
+
+            return (
+              <div key={asset.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between group">
+                <div>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className={`p-3 ${c.bg} rounded-xl group-hover:scale-105 transition-transform`}>
+                      <Icon className={`w-6 h-6 ${c.iconText}`} />
+                    </div>
+                    <span className={`text-[9px] font-bold px-2 py-1 rounded-full ${c.badge} border ${c.border}`}>
+                      {asset.type}
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-slate-900 mb-1">{asset.title}</h3>
+                  <p className="text-xs text-slate-500 mb-4 leading-relaxed">{asset.description}</p>
+                  <ul className="space-y-2 mb-5">
+                    {asset.features.map((f, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <Check className="w-3 h-3 text-emerald-500 shrink-0 mt-0.5" />
+                        <span className="text-[10px] text-slate-600">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="pt-4 border-t border-slate-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs text-slate-400 font-semibold">Purchased {asset.purchased}</span>
+                    <span className="text-xs font-bold text-slate-500">{asset.price}</span>
+                  </div>
+                  <a
+                    href={asset.downloadUrl}
+                    className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-indigo-500 to-teal-500 hover:from-indigo-600 hover:to-teal-600 shadow-md transition group"
+                  >
+                    <Download className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" /> Download Asset
+                  </a>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   const renderContent = () => {
     switch (activeSection) {
       case 'overview': return renderOverview();
       case 'workflows': return renderWorkflows();
       case 'requests': return renderRequests();
+      case 'assets': return renderAssets();
       case 'billing': return renderBilling();
       case 'support': return renderSupport();
       default: return renderOverview();

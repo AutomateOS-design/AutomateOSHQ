@@ -55,13 +55,15 @@ export function insertClient(client) {
   const {
     id, companyName, contactName, email, phone = '',
     plan = 'starter', status = 'Active', password = '',
-    hoursSaved = 0, executionsMTD = 0, valueCreated = 0
+    hoursSaved = 0, executionsMTD = 0, valueCreated = 0,
+    utm_source = '', utm_medium = '', utm_campaign = '', utm_term = '', utm_content = ''
   } = client;
 
   const esc = (s) => (s != null ? `'${String(s).replace(/'/g, "''")}'` : 'NULL');
-  const sql = `INSERT INTO clients (id, companyName, contactName, email, phone, plan, status, hoursSaved, executionsMTD, valueCreated, password)
+  const sql = `INSERT INTO clients (id, companyName, contactName, email, phone, plan, status, hoursSaved, executionsMTD, valueCreated, password, utm_source, utm_medium, utm_campaign, utm_term, utm_content)
     VALUES (${esc(id)}, ${esc(companyName)}, ${esc(contactName)}, ${esc(email)}, ${esc(phone)},
-            ${esc(plan)}, ${esc(status)}, ${Number(hoursSaved)}, ${Number(executionsMTD)}, ${Number(valueCreated)}, ${esc(password)})`;
+            ${esc(plan)}, ${esc(status)}, ${Number(hoursSaved)}, ${Number(executionsMTD)}, ${Number(valueCreated)}, ${esc(password)},
+            ${esc(utm_source)}, ${esc(utm_medium)}, ${esc(utm_campaign)}, ${esc(utm_term)}, ${esc(utm_content)})`;
   return runSql(sql);
 }
 

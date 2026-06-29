@@ -10,6 +10,8 @@ import LeadMagnetPage from './pages/LeadMagnetPage';
 import AuditPage from './pages/AuditPage';
 import TemplatesPage from './pages/TemplatesPage';
 import ClientPortal from './pages/ClientPortal';
+import ResourcesPage from './pages/ResourcesPage';
+import ResourceArticlePage from './pages/ResourceArticlePage';
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
         <Route path="/lead-magnet" element={<LeadMagnetPage />} />
         <Route path="/audit" element={<AuditPage />} />
         <Route path="/templates" element={<TemplatesPage />} />
+        <Route path="/resources" element={<ResourcesPage />} />
+        <Route path="/resources/:slug" element={<ResourceArticlePage />} />
       </Routes>
     </Router>
   );

@@ -172,3 +172,12 @@ export function createProductCheckoutSession(productSlug, email, utmParams = {})
 export function healthCheck() {
   return request('/health');
 }
+
+// ── Resources ─────────────────────────────────────────────────
+export function fetchResources() {
+  return request('/resources');
+}
+
+export function fetchResource(slug) {
+  return request(`/resources/${slug}`);
+}

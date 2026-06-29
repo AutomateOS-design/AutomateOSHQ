@@ -9,6 +9,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import crypto from 'crypto';
 import dotenv from 'dotenv';
@@ -511,6 +512,84 @@ app.get('/api/admin/leads/export', requireAdmin, (req, res) => {
     res.header('Content-Type', 'text/csv');
     res.header('Content-Disposition', `attachment; filename="automateos-leads-${new Date().toISOString().split('T')[0]}.csv"`);
     res.send(csv);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Resources (Markdown Content) ──────────────────────────────
+const RESOURCES_DIR = path.resolve('/home/team/shared/marketing/resources');
+const MANIFEST_PATH = path.resolve('/home/team/shared/marketing/resources-manifest.json');
+
+let manifestData = null;
+try {
+  manifestData = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf-8'));
+  console.log(`📋 Loaded resources manifest: ${manifestData.articles.length} articles`);
+} catch (err) {
+  console.warn('⚠️ Could not load resources manifest:', err.message);
+  manifestData = { articles: [] };
+}
+
+function getManifestForSlug(slug) {
+  if (!manifestData) return null;
+  return manifestData.articles.find(a => a.slug === slug) || null;
+}
+
+function parseResourceMeta(slug, content) {
+  const lines = content.split('\n');
+  const title = lines[0]?.replace(/^#\s+/, '') || slug;
+  // Find excerpt — first paragraph after title that's not empty
+  let excerpt = '';
+  let inBody = false;
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!inBody && line === '') continue;
+    inBody = true;
+    if (line && !line.startsWith('#')) {
+      excerpt = line.replace(/\*\*/g, '').slice(0, 200);
+      break;
+    }
+  }
+  const manifest = getManifestForSlug(slug);
+  return {
+    slug,
+    title: manifest?.title || title,
+    excerpt: manifest?.description || excerpt,
+    category: manifest?.category || null,
+    thumbnail: manifest?.thumbnail || null,
+    hero: manifest?.hero || null
+  };
+}
+
+app.get('/api/resources', (req, res) => {
+  try {
+    const files = fs.readdirSync(RESOURCES_DIR).filter(f => f.endsWith('.md'));
+    const resources = files.map(file => {
+      const slug = file.replace(/\.md$/, '');
+      const content = fs.readFileSync(path.join(RESOURCES_DIR, file), 'utf-8');
+      return parseResourceMeta(slug, content);
+    });
+    res.json(resources);
+  } catch (err) {
+    console.error('Resources error:', err.message);
+    res.status(500).json({ error: 'Failed to load resources' });
+  }
+});
+
+app.get('/api/resources/:slug', (req, res) => {
+  try {
+    const { slug } = req.params;
+    const filePath = path.join(RESOURCES_DIR, `${slug}.md`);
+    // Prevent directory traversal
+    if (!filePath.startsWith(RESOURCES_DIR)) {
+      return res.status(403).json({ error: 'Invalid path' });
+    }
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: 'Resource not found' });
+    }
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const meta = parseResourceMeta(slug, content);
+    res.json({ ...meta, content });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutomateOS — Monthly Automation ROI Report</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0B1120;
+      color: #F8FAFC;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+    }
+    .report {
+      max-width: 800px;
+      width: 100%;
+      background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
+      border: 1px solid #1E293B;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }
+    .header {
+      background: linear-gradient(135deg, #0B1120 0%, #1E1B4B 100%);
+      padding: 32px 36px;
+      border-bottom: 1px solid #1E293B;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .logo-icon {
+      width: 42px; height: 42px; background: linear-gradient(135deg, #6366F1, #14B8A6);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 22px; height: 22px; fill: white; }
+    .brand h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+    .brand p { font-size: 10px; color: #6366F1; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; }
+    .badge {
+      background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #10B981;
+    }
+    .client-info {
+      padding: 24px 36px; background: rgba(30, 41, 59, 0.4);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .client-info h2 { font-size: 18px; font-weight: 700; }
+    .client-info .date { font-size: 12px; color: #64748B; font-weight: 500; }
+    .client-info .plan {
+      background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 4px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; color: #818CF8;
+    }
+    .hero-metrics {
+      padding: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    }
+    .metric-hero {
+      padding: 24px; border-radius: 16px; position: relative; overflow: hidden;
+    }
+    .metric-hero.hours { background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(16,185,129,0.02)); border: 1px solid rgba(16,185,129,0.2); }
+    .metric-hero.value { background: linear-gradient(135deg, rgba(20,184,166,0.1), rgba(20,184,166,0.02)); border: 1px solid rgba(20,184,166,0.2); }
+    .metric-hero .label { font-size: 11px; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .metric-hero .number { font-size: 42px; font-weight: 900; letter-spacing: -1.5px; }
+    .metric-hero.hours .number { color: #34D399; }
+    .metric-hero.value .number { color: #2DD4BF; }
+    .metric-hero .sub { font-size: 13px; color: #94A3B8; margin-top: 4px; font-weight: 500; }
+    .metric-hero .trend {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 8px; font-size: 11px; font-weight: 700;
+    }
+    .metric-hero.hours .trend { color: #10B981; }
+    .metric-hero.value .trend { color: #14B8A6; }
+    .secondary-metrics {
+      padding: 0 36px 36px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    }
+    .stat-card {
+      background: rgba(30, 41, 59, 0.4); border: 1px solid #1E293B;
+      padding: 16px; border-radius: 12px; text-align: center;
+    }
+    .stat-card .num { font-size: 22px; font-weight: 800; color: #F1F5F9; }
+    .stat-card .lbl { font-size: 9px; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px; }
+    .stat-card .num.green { color: #34D399; }
+    .stat-card .num.indigo { color: #818CF8; }
+    .stat-card .num.amber { color: #FBBF24; }
+    .section-title {
+      padding: 0 36px; font-size: 14px; font-weight: 700; color: #E2E8F0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-title .line { flex: 1; height: 1px; background: #1E293B; }
+    .workflow-list { padding: 16px 36px 36px; }
+    .wf-row {
+      background: rgba(30, 41, 59, 0.3); border: 1px solid #1E293B;
+      border-radius: 10px; padding: 14px 18px; margin-bottom: 8px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .wf-row:last-child { margin-bottom: 0; }
+    .wf-name { font-size: 13px; font-weight: 600; color: #E2E8F0; }
+    .wf-status {
+      font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+    }
+    .wf-status.running { background: rgba(16,185,129,0.1); color: #10B981; border: 1px solid rgba(16,185,129,0.2); }
+    .wf-status.saved { background: rgba(99,102,241,0.1); color: #818CF8; border: 1px solid rgba(99,102,241,0.2); }
+    .wf-hours { font-size: 14px; font-weight: 800; color: #34D399; }
+    .chart-placeholder {
+      margin: 0 36px 36px;
+      background: rgba(30, 41, 59, 0.3); border: 1px solid #1E293B;
+      border-radius: 12px; padding: 24px; text-align: center; position: relative; overflow: hidden;
+    }
+    .chart-bars { display: flex; align-items: flex-end; justify-content: center; gap: 16px; height: 100px; margin: 16px 0 8px; }
+    .bar {
+      width: 36px; border-radius: 6px 6px 0 0; transition: all 0.3s;
+      background: linear-gradient(180deg, #6366F1, #14B8A6);
+    }
+    .bar-label { font-size: 10px; color: #64748B; font-weight: 600; }
+    .footer {
+      padding: 24px 36px; text-align: center; border-top: 1px solid #1E293B;
+      font-size: 10px; color: #475569; font-weight: 500;
+    }
+    .footer strong { color: #6366F1; }
+    .watermark {
+      position: absolute; right: 10px; top: 10px;
+      font-size: 8px; color: rgba(99,102,241,0.2); font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; transform: rotate(-5deg);
+    }
+  </style>
+</head>
+<body>
+  <div class="report">
+    <div class="header">
+      <div class="header-left">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><polygon points="14,4 8,13 12,13 10,20 18,10 13,10 16,4"/></svg>
+        </div>
+        <div class="brand">
+          <h1>AutomateOS</h1>
+          <p>Monthly Automation ROI Report</p>
+        </div>
+      </div>
+      <div class="badge">● Live Data</div>
+    </div>
+
+    <div class="client-info">
+      <div>
+        <h2>Velocity Marketing</h2>
+        <p class="date">Report Period: June 1 — June 28, 2026</p>
+      </div>
+      <div class="plan">Growth Engine · $2,499/mo</div>
+    </div>
+
+    <!-- Hero ROI Metrics -->
+    <div class="hero-metrics">
+      <div class="metric-hero hours">
+        <div class="watermark">ROI</div>
+        <div class="label">Total Hours Saved</div>
+        <div class="number">124</div>
+        <div class="sub">Equivalent to 3.1 work weeks recovered</div>
+        <div class="trend">↑ +47% vs. last month</div>
+      </div>
+      <div class="metric-hero value">
+        <div class="watermark">Value</div>
+        <div class="label">Value Created</div>
+        <div class="number">$5,580</div>
+        <div class="sub">At $45/hr equivalent labor cost</div>
+        <div class="trend">↑ $1,780 more than May</div>
+      </div>
+    </div>
+
+    <!-- Secondary Metrics -->
+    <div class="secondary-metrics">
+      <div class="stat-card">
+        <div class="num indigo">5</div>
+        <div class="lbl">Active Workflows</div>
+      </div>
+      <div class="stat-card">
+        <div class="num green">496</div>
+        <div class="lbl">Tasks Processed</div>
+      </div>
+      <div class="stat-card">
+        <div class="num amber">99.9%</div>
+        <div class="lbl">Uptime</div>
+      </div>
+      <div class="stat-card">
+        <div class="num indigo">48h</div>
+        <div class="lbl">Avg. Response</div>
+      </div>
+    </div>
+
+    <!-- Monthly Trend Chart -->
+    <div class="section-title">
+      <span>Hours Saved Trend</span>
+      <span class="line"></span>
+    </div>
+    <div class="chart-placeholder">
+      <div class="chart-bars">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="bar" style="height:28px;"></div>
+          <span class="bar-label">Jan</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="bar" style="height:42px;"></div>
+          <span class="bar-label">Feb</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="bar" style="height:51px;"></div>
+          <span class="bar-label">Mar</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="bar" style="height:65px;"></div>
+          <span class="bar-label">Apr</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="bar" style="height:82px;"></div>
+          <span class="bar-label">May</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <div class="bar" style="height:100px;"></div>
+          <span class="bar-label" style="color:#818CF8;font-weight:700;">Jun</span>
+        </div>
+      </div>
+      <p style="font-size:10px;color:#475569;font-weight:500;">124 total hours saved this month · Compounding 47% month-over-month</p>
+    </div>
+
+    <!-- Active Workflows -->
+    <div class="section-title">
+      <span>Active Workflow Performance</span>
+      <span class="line"></span>
+    </div>
+    <div class="workflow-list">
+      <div class="wf-row">
+        <div>
+          <div class="wf-name">Lead Intake & AI Qualification</div>
+          <span class="wf-status running">● Running</span>
+        </div>
+        <span class="wf-hours">48 hrs</span>
+      </div>
+      <div class="wf-row">
+        <div>
+          <div class="wf-name">Seamless Client Onboarding</div>
+          <span class="wf-status running">● Running</span>
+        </div>
+        <span class="wf-hours">32 hrs</span>
+      </div>
+      <div class="wf-row">
+        <div>
+          <div class="wf-name">Automated KPI Reporting</div>
+          <span class="wf-status running">● Running</span>
+        </div>
+        <span class="wf-hours">22 hrs</span>
+      </div>
+      <div class="wf-row">
+        <div>
+          <div class="wf-name">Invoice Processing & Collections</div>
+          <span class="wf-status running">● Running</span>
+        </div>
+        <span class="wf-hours">18 hrs</span>
+      </div>
+      <div class="wf-row">
+        <div>
+          <div class="wf-name">Content Approval Loop</div>
+          <span class="wf-status saved">● Paused</span>
+        </div>
+        <span class="wf-hours">4 hrs</span>
+      </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div style="padding:0 36px 36px;">
+      <div style="background:linear-gradient(135deg,rgba(99,102,241,0.1),rgba(20,184,166,0.05));border:1px solid rgba(99,102,241,0.2);border-radius:14px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <p style="font-size:14px;font-weight:700;color:#E2E8F0;">Need More Capacity?</p>
+          <p style="font-size:11px;color:#64748B;margin-top:3px;">Your plan has capacity for 2 more workflows. Book a strategy sync to identify your next highest-ROI automation.</p>
+        </div>
+        <span style="background:linear-gradient(135deg,#6366F1,#14B8A6);color:white;padding:10px 20px;border-radius:10px;font-size:11px;font-weight:700;white-space:nowrap;">Book Strategy Sync →</span>
+      </div>
+    </div>
+
+    <div class="footer">
+      Powered by <strong>AutomateOS</strong> · Your Automation Operations Department · <span style="color:#10B981;">● All systems operational</span>
+    </div>
+  </div>
+</body>
+</html>

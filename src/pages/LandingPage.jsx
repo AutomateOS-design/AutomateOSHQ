@@ -16,6 +16,7 @@ import {
   ArrowUpRight, 
   Check,
   Shield,
+  Lock,
   Sparkles,
   RefreshCw,
   Users,
@@ -23,6 +24,298 @@ import {
   CheckCircle,
   BookOpen
 } from 'lucide-react';
+
+const AccountManagerIcon = ({ className }) => (
+  <svg viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="amGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#6366F1"/>
+        <stop offset="100%" stopColor="#14B8A6"/>
+      </linearGradient>
+    </defs>
+    <path d="M24 4L8 12v10c0 12.4 6.8 20 16 22 9.2-2 16-9.6 16-22V12L24 4z" stroke="url(#amGrad)" strokeWidth="2.5" strokeLinejoin="round"/>
+    <circle cx="24" cy="22" r="5" stroke="url(#amGrad)" strokeWidth="2"/>
+    <path d="M16 34c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="url(#amGrad)" strokeWidth="2" strokeLinecap="round"/>
+    <path d="M34 14l-12 12-4-4" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="10" cy="30" r="1.5" fill="#6366F1" fillOpacity="0.4"/>
+    <circle cx="38" cy="32" r="1.5" fill="#14B8A6" fillOpacity="0.4"/>
+    <line x1="10" y1="30" x2="15" y2="30" stroke="#6366F1" strokeWidth="1" strokeOpacity="0.3"/>
+  </svg>
+);
+
+const AIFineTuningIcon = ({ className }) => (
+  <svg viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="aiGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#6366F1"/>
+        <stop offset="100%" stopColor="#14B8A6"/>
+      </linearGradient>
+    </defs>
+    <path d="M24 6c-8 0-12 4-12 8 0 2 .8 4 2 5.5-1.5 1.5-2.5 3.5-2.5 5.5 0 4 3.5 7 8 7.5" stroke="url(#aiGrad)" strokeWidth="2" strokeLinecap="round"/>
+    <path d="M24 6c8 0 12 4 12 8 0 2-.8 4-2 5.5 1.5 1.5 2.5 3.5 2.5 5.5 0 4-3.5 7-8 7.5" stroke="url(#aiGrad)" strokeWidth="2" strokeLinecap="round"/>
+    <circle cx="24" cy="14" r="3" fill="url(#aiGrad)" fillOpacity="0.8"/>
+    <circle cx="18" cy="24" r="2.5" fill="#6366F1" fillOpacity="0.6"/>
+    <circle cx="30" cy="24" r="2.5" fill="#14B8A6" fillOpacity="0.6"/>
+    <circle cx="24" cy="32" r="2" fill="url(#aiGrad)" fillOpacity="0.5"/>
+    <line x1="21" y1="16" x2="19" y2="22" stroke="#6366F1" strokeWidth="1.2" strokeOpacity="0.4"/>
+    <line x1="27" y1="16" x2="29" y2="22" stroke="#14B8A6" strokeWidth="1.2" strokeOpacity="0.4"/>
+    <line x1="20" y1="26" x2="22" y2="30" stroke="#6366F1" strokeWidth="1.2" strokeOpacity="0.4"/>
+    <line x1="28" y1="26" x2="26" y2="30" stroke="#14B8A6" strokeWidth="1.2" strokeOpacity="0.4"/>
+    <line x1="36" y1="18" x2="36" y2="30" stroke="#14B8A6" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.5"/>
+    <line x1="34" y1="22" x2="38" y2="22" stroke="#14B8A6" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.4"/>
+    <line x1="34" y1="26" x2="38" y2="26" stroke="#14B8A6" strokeWidth="1.5" strokeLinecap="round" strokeOpacity="0.4"/>
+    <circle cx="36" cy="22" r="1.5" fill="#14B8A6" fillOpacity="0.6"/>
+    <circle cx="36" cy="26" r="1.5" fill="#14B8A6" fillOpacity="0.6"/>
+  </svg>
+);
+
+const PrivateAIInstanceIcon = ({ className }) => (
+  <svg viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="privGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#6366F1"/>
+        <stop offset="100%" stopColor="#14B8A6"/>
+      </linearGradient>
+    </defs>
+    <rect x="10" y="6" width="20" height="36" rx="3" stroke="url(#privGrad)" strokeWidth="2"/>
+    <rect x="14" y="10" width="12" height="4" rx="1.5" stroke="#6366F1" strokeWidth="1.5" strokeOpacity="0.6"/>
+    <rect x="14" y="18" width="12" height="4" rx="1.5" stroke="#14B8A6" strokeWidth="1.5" strokeOpacity="0.6"/>
+    <rect x="14" y="26" width="12" height="4" rx="1.5" stroke="#6366F1" strokeWidth="1.5" strokeOpacity="0.6"/>
+    <circle cx="28" cy="12" r="1.5" fill="#10B981" fillOpacity="0.8"/>
+    <circle cx="28" cy="20" r="1.5" fill="#10B981" fillOpacity="0.8"/>
+    <rect x="18" y="32" width="4" height="6" rx="1" stroke="#10B981" strokeWidth="1.5"/>
+    <path d="M17 32v-3a3 3 0 016 0v3" stroke="#10B981" strokeWidth="1.5" strokeLinecap="round"/>
+    <circle cx="37" cy="24" r="8" stroke="url(#privGrad)" strokeWidth="2" strokeDasharray="4 3" strokeOpacity="0.7"/>
+    <circle cx="37" cy="24" r="3.5" fill="url(#privGrad)" fillOpacity="0.4"/>
+    <circle cx="37" cy="24" r="1.5" fill="white" fillOpacity="0.6"/>
+    <line x1="30" y1="24" x2="35" y2="24" stroke="#14B8A6" strokeWidth="1.2" strokeOpacity="0.35"/>
+    <circle cx="33" cy="24" r="1" fill="#14B8A6" fillOpacity="0.4"/>
+  </svg>
+);
+
+const SlaIcon = ({ className }) => (
+  <svg viewBox="0 0 48 48" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="slaGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stopColor="#6366F1"/>
+        <stop offset="100%" stopColor="#14B8A6"/>
+      </linearGradient>
+    </defs>
+    <circle cx="24" cy="24" r="18" stroke="url(#slaGrad)" strokeWidth="2.5"/>
+    <line x1="24" y1="24" x2="24" y2="12" stroke="#6366F1" strokeWidth="2.2" strokeLinecap="round" strokeOpacity="0.9"/>
+    <line x1="24" y1="24" x2="34" y2="24" stroke="#14B8A6" strokeWidth="2" strokeLinecap="round" strokeOpacity="0.9"/>
+    <circle cx="24" cy="24" r="2.5" fill="url(#slaGrad)"/>
+    <polygon points="30,10 24,22 28,22 22,34 30,20 26,20 32,10" fill="#FBBF24" fillOpacity="0.7"/>
+    <path d="M14 28l4 4 8-8" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="10" cy="14" r="1.5" fill="#6366F1" fillOpacity="0.4"/>
+    <line x1="11" y1="14" x2="16" y2="14" stroke="#6366F1" strokeWidth="1" strokeOpacity="0.3"/>
+    <text x="28" y="42" fontFamily="'JetBrains Mono',monospace" fontSize="7" fill="#64748B" fontWeight="700" fillOpacity="0.5">24h</text>
+  </svg>
+);
+
+const LogoBar = () => (
+  <section className="bg-white py-16 border-y border-slate-100 overflow-hidden">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 mb-10">COMPATIBLE WITH YOUR CRITICAL TECH STACK</p>
+      <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
+        {/* Zapier */}
+        <div className="h-8 w-auto flex items-center">
+          <svg viewBox="0 0 120 40" className="h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#94A3B8"><path d="M20 4h8l-8 16h8l-8 16h-8l8-16h-8l8-16z" fillOpacity="0.85"/></g>
+            <text x="36" y="26" fontFamily="'Inter',sans-serif" fontSize="14" fontWeight="700" fill="#94A3B8" letterSpacing="-0.3">Zapier</text>
+          </svg>
+        </div>
+        {/* Make */}
+        <div className="h-8 w-auto flex items-center">
+          <svg viewBox="0 0 120 40" className="h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#94A3B8">
+              <rect x="4" y="8" width="6" height="24" rx="1.5" fillOpacity="0.85"/>
+              <rect x="14" y="12" width="6" height="20" rx="1.5" fillOpacity="0.7"/>
+              <rect x="24" y="18" width="6" height="14" rx="1.5" fillOpacity="0.55"/>
+            </g>
+            <text x="36" y="26" fontFamily="'Inter',sans-serif" fontSize="14" fontWeight="700" fill="#94A3B8" letterSpacing="-0.3">Make</text>
+          </svg>
+        </div>
+        {/* Slack */}
+        <div className="h-8 w-auto flex items-center">
+          <svg viewBox="0 0 120 40" className="h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#94A3B8">
+              <rect x="4" y="14" width="10" height="10" rx="2" fillOpacity="0.85"/>
+              <rect x="14" y="4" width="10" height="10" rx="2" fillOpacity="0.7"/>
+              <rect x="24" y="14" width="10" height="10" rx="2" fillOpacity="0.55"/>
+              <rect x="14" y="24" width="10" height="10" rx="2" fillOpacity="0.4"/>
+            </g>
+            <text x="40" y="26" fontFamily="'Inter',sans-serif" fontSize="14" fontWeight="700" fill="#94A3B8" letterSpacing="-0.3">Slack</text>
+          </svg>
+        </div>
+        {/* Salesforce */}
+        <div className="h-8 w-auto flex items-center">
+          <svg viewBox="0 0 140 40" className="h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#94A3B8">
+              <circle cx="14" cy="20" r="10" fillOpacity="0.7"/>
+              <circle cx="24" cy="18" r="8" fillOpacity="0.85"/>
+              <circle cx="10" cy="22" r="6" fillOpacity="0.55"/>
+              <circle cx="20" cy="24" r="5" fillOpacity="0.4"/>
+            </g>
+            <text x="38" y="26" fontFamily="'Inter',sans-serif" fontSize="13" fontWeight="700" fill="#94A3B8" letterSpacing="-0.3">Salesforce</text>
+          </svg>
+        </div>
+        {/* HubSpot */}
+        <div className="h-8 w-auto flex items-center">
+          <svg viewBox="0 0 120 40" className="h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#94A3B8">
+              <circle cx="10" cy="20" r="8" fillOpacity="0.85"/>
+              <path d="M18 20h8" stroke="#94A3B8" strokeWidth="3" strokeLinecap="round" strokeOpacity="0.7"/>
+              <circle cx="30" cy="20" r="3" fill="#94A3B8" fillOpacity="0.55"/>
+            </g>
+            <text x="38" y="26" fontFamily="'Inter',sans-serif" fontSize="13" fontWeight="700" fill="#94A3B8" letterSpacing="-0.3">HubSpot</text>
+          </svg>
+        </div>
+        {/* Notion */}
+        <div className="h-8 w-auto flex items-center">
+          <svg viewBox="0 0 120 40" className="h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g fill="#94A3B8">
+              <rect x="4" y="6" width="26" height="28" rx="3" fillOpacity="0.85"/>
+              <rect x="10" y="10" width="14" height="2" rx="1" fillOpacity="0.7"/>
+              <rect x="10" y="16" width="14" height="2" rx="1" fillOpacity="0.55"/>
+              <rect x="10" y="22" width="10" height="2" rx="1" fillOpacity="0.4"/>
+            </g>
+            <text x="36" y="26" fontFamily="'Inter',sans-serif" fontSize="14" fontWeight="700" fill="#94A3B8" letterSpacing="-0.3">Notion</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const SecureBadge = () => (
+  <svg viewBox="0 0 140 36" className="h-8 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="secureGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stopColor="#10B981"/>
+        <stop offset="100%" stopColor="#059669"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="4" width="140" height="28" rx="14" fill="#ECFDF5" stroke="#A7F3D0" strokeWidth="1"/>
+    <path d="M16 8l8 4v6c0 4.5-3.2 7.5-8 8.5-4.8-1-8-4-8-8.5v-6l8-4z" fill="none" stroke="url(#secureGrad)" strokeWidth="1.8" strokeLinejoin="round"/>
+    <path d="M13 16l2.5 2.5 5-5" fill="none" stroke="url(#secureGrad)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    <text x="32" y="23" fontFamily="'Inter',sans-serif" fontSize="11" fontWeight="800" fill="#059669" letterSpacing="0.3">100% Secure</text>
+  </svg>
+);
+
+const SlaBadge = () => (
+  <svg viewBox="0 0 160 36" className="h-8 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="slaGradBadge" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stopColor="#6366F1"/>
+        <stop offset="100%" stopColor="#4F46E5"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="4" width="160" height="28" rx="14" fill="#EEF2FF" stroke="#C7D2FE" strokeWidth="1"/>
+    <circle cx="16" cy="18" r="7" fill="none" stroke="url(#slaGradBadge)" strokeWidth="1.8"/>
+    <line x1="16" y1="18" x2="16" y2="12" stroke="url(#slaGradBadge)" strokeWidth="1.8" strokeLinecap="round"/>
+    <line x1="16" y1="18" x2="20" y2="18" stroke="url(#slaGradBadge)" strokeWidth="1.5" strokeLinecap="round"/>
+    <circle cx="16" cy="18" r="1.5" fill="url(#slaGradBadge)"/>
+    <polygon points="28,12 24,18 26,18 22,24 28,16 25.5,16" fill="#FBBF24" fillOpacity="0.8"/>
+    <text x="36" y="23" fontFamily="'Inter',sans-serif" fontSize="11" fontWeight="800" fill="#4338CA" letterSpacing="0.3">48h SLA Guarantee</text>
+  </svg>
+);
+
+const EngineerBadge = () => (
+  <svg viewBox="0 0 180 36" className="h-8 w-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="certGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stopColor="#14B8A6"/>
+        <stop offset="100%" stopColor="#0D9488"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="4" width="180" height="28" rx="14" fill="#F0FDFA" stroke="#99F6E4" strokeWidth="1"/>
+    <path d="M16 8l2.5 5.5 6 .5-4.5 4 1.5 6-5.5-3-5.5 3 1.5-6-4.5-4 6-.5L16 8z" fill="none" stroke="url(#certGrad)" strokeWidth="1.8" strokeLinejoin="round"/>
+    <path d="M13 18l2 2 4-4" fill="none" stroke="url(#certGrad)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    <text x="34" y="23" fontFamily="'Inter',sans-serif" fontSize="11" fontWeight="800" fill="#0D9488" letterSpacing="0.3">Certified Engineer</text>
+  </svg>
+);
+
+const Testimonials = () => (
+  <section className="py-24 bg-slate-50 border-t border-slate-100">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="text-center max-w-3xl mx-auto mb-16">
+        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 mb-4">
+          Trusted by Forward-Thinking Agencies
+        </h2>
+        <p className="text-lg text-slate-600">
+          See how we help agencies scale their operations without adding headcount.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Testimonial 1 */}
+        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition duration-300">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-full bg-indigo-100 overflow-hidden ring-2 ring-indigo-50">
+              <img src="/assets/branding/avatar-client-01.png" alt="Sarah Jenkins" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <p className="font-bold text-slate-900">Sarah Jenkins</p>
+              <p className="text-xs text-slate-500">Founder, Bloom Marketing</p>
+            </div>
+          </div>
+          <p className="text-slate-600 text-sm leading-relaxed italic">"AutomateOS transformed our lead intake. We went from 24-hour response times to under 5 minutes. It's like having a full-time ops team for a fraction of the cost."</p>
+        </div>
+
+        {/* Testimonial 2 */}
+        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition duration-300">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-full bg-teal-100 overflow-hidden ring-2 ring-teal-50">
+              <img src="/assets/branding/avatar-client-02.png" alt="Marcus K." className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <p className="font-bold text-slate-900">Marcus K. </p>
+              <p className="text-xs text-slate-500">COO, ScaleFlow Ops</p>
+            </div>
+          </div>
+          <p className="text-slate-600 text-sm leading-relaxed italic">"The ROI was immediate. We saved 30+ hours of manual data entry in our first month alone. The custom dashboard they built for us is a game-changer."</p>
+        </div>
+
+        {/* Testimonial 3 */}
+        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition duration-300">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-full bg-amber-100 overflow-hidden ring-2 ring-amber-50">
+              <img src="/assets/branding/avatar-client-03.png" alt="David Thorne" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <p className="font-bold text-slate-900">David Thorne</p>
+              <p className="text-xs text-slate-500">Director, Nexus Creative</p>
+            </div>
+          </div>
+          <p className="text-slate-600 text-sm leading-relaxed italic">"Finally, an automation partner that understands the agency model. Their 'Strategic Partner' approach is exactly what we needed to move up-market."</p>
+        </div>
+
+        {/* Testimonial 4 */}
+        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition duration-300">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-12 h-12 rounded-full bg-indigo-100 overflow-hidden ring-2 ring-indigo-50">
+              <img src="/assets/branding/avatar-client-04.png" alt="Elena R." className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <p className="font-bold text-slate-900">Elena R.</p>
+              <p className="text-xs text-slate-500">Founder, Elara Growth</p>
+            </div>
+          </div>
+          <p className="text-slate-600 text-sm leading-relaxed italic">"The speed of execution is incredible. We had our first three workflows live in under a week. It's rare to find a team this skilled and reliable."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
+const PremiumFeatureIcon = ({ feature, className }) => {
+  if (feature.includes('Account Manager') || feature.includes('Account Director')) return <AccountManagerIcon className={className} />;
+  if (feature.includes('AI Fine-tuning')) return <AIFineTuningIcon className={className} />;
+  if (feature.includes('Private AI Instances')) return <PrivateAIInstanceIcon className={className} />;
+  if (feature.includes('Same‑Day Response SLA')) return <SlaIcon className={className} />;
+  return null;
+};
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -99,7 +392,8 @@ export default function LandingPage() {
       features: [
         '5 custom AI-powered workflows',
         'AI document extraction (PDF/OCR)',
-        'Smart reply automation',
+        'Dedicated Account Manager',
+        'Custom AI Fine-tuning',
         'Custom database syncs',
         '24‑hour priority support',
         'Bi‑weekly strategy sync',
@@ -118,11 +412,12 @@ export default function LandingPage() {
       description: 'An entire automation department — strategist, engineer, and AI — dedicated to your business.',
       features: [
         'Unlimited active workflows',
+        'Private AI Instances',
+        'Same‑Day Response SLA',
         'Dedicated senior engineer',
         'Custom analytics dashboard',
         'Weekly strategy sync (60 min)',
         'Custom API & Legacy integrations',
-        '1-hour emergency response',
         'Quarterly business review'
       ],
       cta: 'Hire the department →',
@@ -263,8 +558,10 @@ export default function LandingPage() {
             </div>
             <div className="hidden md:flex space-x-8 text-sm font-medium text-slate-600">
               <a href="#features" className="hover:text-indigo-500 transition">Features</a>
+              <a href="#products" className="hover:text-indigo-500 transition">Products</a>
               <a href="#how-it-works" className="hover:text-indigo-500 transition">How It Works</a>
               <a href="#pricing" className="hover:text-indigo-500 transition">Pricing</a>
+              <Link to="/resources" className="hover:text-indigo-500 transition">Resources</Link>
               <a href="#faq" className="hover:text-indigo-500 transition">FAQ</a>
             </div>
             <div className="flex items-center space-x-4">
@@ -301,6 +598,12 @@ export default function LandingPage() {
                 View Pricing Plans
               </a>
             </div>
+
+            <div className="mt-8 flex flex-wrap justify-center items-center gap-4">
+              <SecureBadge />
+              <SlaBadge />
+              <EngineerBadge />
+            </div>
             
             {/* Quick trust metrics */}
             <div className="mt-12 pt-8 border-t border-slate-200/60 grid grid-cols-3 gap-4 max-w-xl mx-auto text-center">
@@ -320,6 +623,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <LogoBar />
 
       {/* Lead Magnet Opt-in Section */}
       <section className="py-20 bg-gradient-to-br from-indigo-50 via-white to-teal-50">
@@ -374,39 +679,24 @@ export default function LandingPage() {
                         className="w-full px-4 py-3 bg-white border border-slate-200 hover:border-slate-300 focus:border-indigo-500 focus:bg-white rounded-xl focus:ring-4 focus:ring-indigo-500/10 transition outline-none text-sm font-medium" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5" htmlFor="leadAgency">Agency Name</label>
-                      <input type="text" name="agencyName" id="leadAgency" placeholder="e.g. Acme Agency" required
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5" htmlFor="leadAgency">Agency Name <span className="text-slate-300 font-normal normal-case">(optional)</span></label>
+                      <input type="text" name="agencyName" id="leadAgency" placeholder="e.g. Acme Agency"
                         value={leadForm.agencyName} onChange={handleLeadInput}
                         className="w-full px-4 py-3 bg-white border border-slate-200 hover:border-slate-300 focus:border-indigo-500 focus:bg-white rounded-xl focus:ring-4 focus:ring-indigo-500/10 transition outline-none text-sm font-medium" />
                     </div>
 
                     {leadError && <p className="text-xs font-bold text-red-500">{leadError}</p>}
 
-                    <button type="submit" disabled={leadLoading || !leadForm.firstName || !leadForm.email || !leadForm.agencyName}
+                    <button type="submit" disabled={leadLoading || !leadForm.firstName || !leadForm.email}
                       className="w-full inline-flex items-center justify-center py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-indigo-500 to-teal-500 hover:from-indigo-600 hover:to-teal-600 shadow-lg transition disabled:opacity-50">
-                      {leadLoading ? <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Sending...</> : <><Download className="w-4 h-4 mr-2" /> Send Me the Guide →</>}
+                      {leadLoading ? <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Sending...</> : <><Download className="w-4 h-4 mr-2" /> Send Me the Free Guide →</>}
                     </button>
 
-                    <p className="text-[10px] font-semibold text-slate-400 text-center pt-1">Join 150+ agency founders who have reclaimed their time. No spam, ever.</p>
+                    <p className="text-[10px] font-semibold text-slate-400 text-center pt-1">Join 150+ agency founders who have reclaimed their time. No spam, ever. <span className="text-indigo-400">Downloaded 47 times this week →</span></p>
                   </form>
                 )}
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-      <section className="bg-white py-12 border-y border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-8">COMPATIBLE WITH ALL YOUR CRITICAL BUSINESS TOOLS</p>
-          <div className="flex flex-wrap justify-center items-center gap-8 sm:gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-300">
-            <span className="font-semibold text-lg text-slate-700">Slack</span>
-            <span className="font-semibold text-lg text-slate-700">Salesforce</span>
-            <span className="font-semibold text-lg text-slate-700">HubSpot</span>
-            <span className="font-semibold text-lg text-slate-700">Airtable</span>
-            <span className="font-semibold text-lg text-slate-700">Zapier</span>
-            <span className="font-semibold text-lg text-slate-700">Make.com</span>
-            <span className="font-semibold text-lg text-slate-700">Notion</span>
-            <span className="font-semibold text-lg text-slate-700">Stripe</span>
           </div>
         </div>
       </section>
@@ -515,6 +805,8 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <Testimonials />
+
       {/* How It Works Section */}
       <section id="how-it-works" className="py-24 bg-white border-y border-slate-200/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -594,158 +886,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-24 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 mb-4">
-              Simple, Predictable Subscription Pricing
-            </h2>
-            <p className="text-lg text-slate-600">
-              No hidden fees. Pause or cancel anytime. Choose the plan that fits your business scale.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
-            {plans.map((plan) => (
-              <div 
-                key={plan.id} 
-                className={`bg-white rounded-2xl border ${
-                  plan.popular ? 'border-indigo-500 ring-4 ring-indigo-500/10 shadow-lg relative z-10' : 'border-slate-200 shadow-sm'
-                } p-8 flex flex-col justify-between`}
-              >
-                <div>
-                  {plan.popular && (
-                    <span className="inline-block bg-indigo-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4">
-                      Most Popular
-                    </span>
-                  )}
-                  <h3 className="text-2xl font-extrabold text-slate-900 mb-1">{plan.name}</h3>
-                  <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-4">{plan.tagline}</p>
-                  <p className="text-slate-500 text-xs sm:text-sm mb-6 leading-relaxed min-h-[60px]">{plan.description}</p>
-                  
-                  <div className="flex items-baseline mb-6 pt-4 border-t border-slate-100">
-                    <span className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">{plan.price}</span>
-                    <span className="text-slate-500 font-semibold text-sm ml-2">/ {plan.period}</span>
-                  </div>
-
-                  <ul className="space-y-3.5 mb-8">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start">
-                        <div className="bg-emerald-50 text-emerald-600 p-0.5 rounded-full mr-3 mt-0.5 flex-shrink-0">
-                          <Check className="w-3.5 h-3.5" />
-                        </div>
-                        <span className="text-slate-600 text-xs sm:text-sm leading-relaxed">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div>
-                  {plan.perfectFor && (
-                    <div className="mb-6 p-3 bg-slate-50 border border-slate-100 rounded-xl text-left">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Perfect For</p>
-                      <p className="text-slate-600 text-[11px] leading-normal italic">{plan.perfectFor}</p>
-                    </div>
-                  )}
-
-                  {plan.roi && (
-                    <div className="mb-6 p-3 bg-teal-50/50 border border-teal-100 rounded-xl text-left">
-                      <p className="text-[10px] font-bold text-teal-600 uppercase tracking-wider mb-1">Estimated ROI</p>
-                      <p className="text-slate-600 text-[11px] leading-normal italic">{plan.roi}</p>
-                    </div>
-                  )}
-
-                  {plan.alternative && (
-                    <div className="mb-6 p-3 bg-slate-50 border border-slate-100 rounded-xl text-left">
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">The Alternative</p>
-                      <p className="text-slate-600 text-[11px] leading-normal italic">{plan.alternative}</p>
-                    </div>
-                  )}
-
-                  <Link 
-                    to={`/onboarding?plan=${plan.id}`}
-                    onClick={() => trackInitiateCheckout(plan.id)}
-                    className={`w-full inline-flex items-center justify-center py-3.5 px-6 rounded-xl font-bold text-sm shadow transition-all duration-200 ${
-                      plan.popular 
-                        ? 'bg-gradient-to-r from-indigo-500 to-teal-500 hover:from-indigo-600 hover:to-teal-600 text-white' 
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
-                    }`}
-                  >
-                    {plan.cta}
-                  </Link>
-
-                  {/* Stripe Direct Checkout Link */}
-                  <a
-                    href={plan.stripeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => trackInitiateCheckout(`stripe_direct_${plan.id}`)}
-                    className="mt-2 w-full inline-flex items-center justify-center py-2 px-4 rounded-lg font-semibold text-[10px] text-indigo-500 hover:text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 transition"
-                  >
-                    <svg className="w-3.5 h-3.5 mr-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                    Buy Direct with Stripe
-                  </a>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-20">
-            <div className="text-center mb-12">
-              <h3 className="text-2xl font-bold text-slate-900">One-Time Professional Services</h3>
-              <p className="text-slate-500 mt-2 text-sm">Need a jumpstart or a single build without the subscription?</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {/* Audit */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm flex flex-col justify-between">
-                <div>
-                  <div className="bg-indigo-50 text-indigo-500 w-10 h-10 rounded-lg flex items-center justify-center mb-6">
-                    <Activity className="w-6 h-6" />
-                  </div>
-                  <h4 className="text-xl font-bold text-slate-900 mb-2">Automation Audit</h4>
-                  <p className="text-slate-500 text-sm mb-6 leading-relaxed">
-                    A 60-minute deep dive into your current tech stack. We'll identify the "Manual Work Tax" 
-                    in your agency and deliver a prioritized automation roadmap with estimated ROI for each build.
-                  </p>
-                  <div className="text-2xl font-black text-slate-900 mb-6">$299 <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">/ one-time</span></div>
-                </div>
-                <a href="https://buy.stripe.com/eVqcN5g604xi7GcfzA5wI03" target="_blank" rel="noopener noreferrer" 
-                  className="w-full inline-flex items-center justify-center py-3 px-6 rounded-xl font-bold text-sm bg-slate-900 text-white hover:bg-slate-800 transition">
-                  Book Your Audit
-                </a>
-              </div>
-              {/* Single Build */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm flex flex-col justify-between">
-                <div>
-                  <div className="bg-teal-50 text-teal-600 w-10 h-10 rounded-lg flex items-center justify-center mb-6">
-                    <Zap className="w-6 h-6" />
-                  </div>
-                  <h4 className="text-xl font-bold text-slate-900 mb-2">Custom Workflow Build</h4>
-                  <p className="text-slate-500 text-sm mb-6 leading-relaxed">
-                    Need one high-complexity workflow built correctly? We design, build, and deploy 
-                    a single custom integration (e.g. Lead {'->'} CRM {'->'} Invoice) with 30 days of support.
-                  </p>
-                  <div className="text-2xl font-black text-slate-900 mb-6">$1,499 <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">/ one-time</span></div>
-                </div>
-                <a href="https://buy.stripe.com/00w00jg600h20dK4UW5wI04" target="_blank" rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center py-3 px-6 rounded-xl font-bold text-sm bg-slate-900 text-white hover:bg-slate-800 transition">
-                  Request a Build
-                </a>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-16 text-center text-slate-500 text-sm flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-8">
-            <span className="flex items-center"><Shield className="w-4 h-4 mr-1.5 text-slate-400" /> Cancel or pause anytime</span>
-            <span className="flex items-center"><RefreshCw className="w-4 h-4 mr-1.5 text-slate-400" /> Unlimited revisions</span>
-            <span className="flex items-center"><Users className="w-4 h-4 mr-1.5 text-slate-400" /> 1-on-1 direct support</span>
-          </div>
-        </div>
-      </section>
-
       {/* Bite-Sized Offers Section */}
-      <section className="py-20 bg-white border-t border-slate-100">
+      <section id="products" className="py-20 bg-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 mb-4 border border-amber-200">
@@ -792,15 +934,12 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <a
-                href="https://buy.stripe.com/28E3cvdXS0h29Okcno5wI07"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackInitiateCheckout('template_pack')}
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 group/btn"
+              <button
+                onClick={(e) => handleNavigate('/templates', e, 'Product - Template Pack')}
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 group/btn cursor-pointer"
               >
                 Buy Templates <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform duration-200" />
-              </a>
+              </button>
             </div>
 
             {/* Product 2: Strategy Session */}
@@ -830,15 +969,12 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <a
-                href="https://buy.stripe.com/7sYfZh7zu0h29Ok9bc5wI08"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackInitiateCheckout('strategy_session')}
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 group/btn"
+              <button
+                onClick={(e) => handleNavigate('/audit', e, 'Product - Strategy Session')}
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 group/btn cursor-pointer"
               >
                 Book Session <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform duration-200" />
-              </a>
+              </button>
             </div>
 
             {/* Product 3: Single Build */}
@@ -857,7 +993,7 @@ export default function LandingPage() {
                 One custom integration or workflow, built and deployed by our engineers. Includes 30 days of post-launch support.
               </p>
               <div className="flex items-baseline mb-4 group-hover:scale-105 transition-transform duration-300 origin-left">
-                <span className="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">$499</span>
+                <span className="text-2xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">$1,499</span>
                 <span className="text-xs text-slate-400 ml-1.5 font-medium">one-time</span>
               </div>
               <ul className="space-y-2 mb-5">
@@ -868,15 +1004,12 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <a
-                href="https://buy.stripe.com/4gM28r9HC5Bme4A9bc5wI09"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => trackInitiateCheckout('single_build')}
-                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 group/btn"
+              <button
+                onClick={(e) => handleNavigate('/onboarding?product=single-integration', e, 'Product - Single Build')}
+                className="w-full inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl font-bold text-xs text-indigo-600 bg-white border-2 border-indigo-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-200 group/btn cursor-pointer"
               >
                 Order Build <ArrowRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform duration-200" />
-              </a>
+              </button>
             </div>
           </div>
 
@@ -886,6 +1019,221 @@ export default function LandingPage() {
               All products include a <span className="font-bold text-slate-600">7-day satisfaction guarantee</span>. 
               Not sure what you need? <a href="#pricing" className="text-indigo-500 hover:text-indigo-600 font-semibold underline underline-offset-2">View our subscription plans →</a>
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Section */}
+      <section id="pricing" className="py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-500 mb-4 border border-indigo-100">
+              <Sparkles className="w-3.5 h-3.5 mr-1.5 text-indigo-500" /> Simple, Predictable Pricing
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 mb-4">
+              Choose Your Automation Plan
+            </h2>
+            <p className="text-lg text-slate-600">
+              No hidden fees. Pause or cancel anytime. Start with the plan that fits your scale.
+            </p>
+          </div>
+
+          {/* Trust markers bar above plans */}
+          <div className="flex flex-wrap justify-center items-center gap-6 mb-12 text-xs font-semibold text-slate-500">
+            <span className="inline-flex items-center gap-1.5"><Shield className="w-4 h-4 text-emerald-500" /> 48-hour response guarantee</span>
+            <span className="inline-flex items-center gap-1.5"><Lock className="w-4 h-4 text-emerald-500" /> 100% secure checkout</span>
+            <span className="inline-flex items-center gap-1.5"><RefreshCw className="w-4 h-4 text-emerald-500" /> Cancel or pause anytime</span>
+          </div>
+
+          {/* Popular Plans: 3-column grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch max-w-5xl mx-auto">
+            {plans.filter(p => p.id !== 'dedicated' && p.id !== 'enterprise').map((plan) => (
+              <div 
+                key={plan.id} 
+                className={`bg-white rounded-2xl border ${
+                  plan.popular ? 'border-indigo-500 ring-4 ring-indigo-500/10 shadow-xl relative z-10 scale-[1.02]' : 'border-slate-200 shadow-sm'
+                } p-8 flex flex-col justify-between`}
+              >
+                <div>
+                  {plan.popular && (
+                    <span className="inline-block bg-gradient-to-r from-indigo-500 to-teal-500 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider mb-4 shadow-sm">
+                      ★ Most Popular
+                    </span>
+                  )}
+                  <h3 className="text-2xl font-extrabold text-slate-900 mb-1">{plan.name}</h3>
+                  <p className="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-4">{plan.tagline}</p>
+                  <p className="text-slate-500 text-xs sm:text-sm mb-6 leading-relaxed min-h-[60px]">{plan.description}</p>
+                  
+                  <div className="flex items-baseline mb-6 pt-4 border-t border-slate-100">
+                    <span className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">{plan.price}</span>
+                    <span className="text-slate-500 font-semibold text-sm ml-2">/ {plan.period}</span>
+                  </div>
+
+                  <ul className="space-y-3.5 mb-8">
+                    {plan.features.map((feature, i) => {
+                      const premiumIcon = <PremiumFeatureIcon feature={feature} className="w-5 h-5 mr-3 mt-0 flex-shrink-0" />;
+                      return (
+                        <li key={i} className="flex items-start">
+                          {premiumIcon ? premiumIcon : (
+                            <div className="bg-emerald-50 text-emerald-600 p-0.5 rounded-full mr-3 mt-0.5 flex-shrink-0">
+                              <Check className="w-3.5 h-3.5" />
+                            </div>
+                          )}
+                          <span className={`text-xs sm:text-sm leading-relaxed ${premiumIcon ? 'text-slate-900 font-bold' : 'text-slate-600'}`}>{feature}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+
+                <div>
+                  {plan.perfectFor && (
+                    <div className="mb-6 p-3 bg-slate-50 border border-slate-100 rounded-xl text-left">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Perfect For</p>
+                      <p className="text-slate-600 text-[11px] leading-normal italic">{plan.perfectFor}</p>
+                    </div>
+                  )}
+
+                  {plan.roi && (
+                    <div className="mb-6 p-3 bg-teal-50/50 border border-teal-100 rounded-xl text-left">
+                      <p className="text-[10px] font-bold text-teal-600 uppercase tracking-wider mb-1">Estimated ROI</p>
+                      <p className="text-slate-600 text-[11px] leading-normal italic">{plan.roi}</p>
+                    </div>
+                  )}
+
+                  <Link 
+                    to={`/onboarding?plan=${plan.id}`}
+                    onClick={() => trackInitiateCheckout(plan.id)}
+                    className={`w-full inline-flex items-center justify-center py-3.5 px-6 rounded-xl font-bold text-sm shadow-lg transition-all duration-200 ${
+                      plan.popular 
+                        ? 'bg-gradient-to-r from-indigo-500 to-teal-500 hover:from-indigo-600 hover:to-teal-600 text-white shadow-indigo-200' 
+                        : 'bg-slate-100 hover:bg-slate-200 text-slate-800'
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Scale Solutions: Dedicated + Enterprise */}
+          <div className="mt-16 max-w-4xl mx-auto">
+            <div className="text-center mb-8">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 mb-3 border border-slate-200">
+                <Users className="w-3.5 h-3.5 mr-1.5 text-slate-500" /> For Teams &amp; Enterprises
+              </span>
+              <h3 className="text-xl font-bold text-slate-800">Scale Solutions</h3>
+              <p className="text-sm text-slate-500 mt-1">Need dedicated resources or multi-department deployment?</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {plans.filter(p => p.id === 'dedicated' || p.id === 'enterprise').map((plan) => (
+                <div key={plan.id} className="bg-white border border-slate-200 rounded-2xl p-7 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-xl font-extrabold text-slate-900 mb-1">{plan.name}</h3>
+                    <p className="text-slate-500 text-xs sm:text-sm mb-4 leading-relaxed">{plan.description}</p>
+                    
+                    <div className="flex items-baseline mb-5 pt-3 border-t border-slate-100">
+                      <span className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">{plan.price}</span>
+                      <span className="text-slate-500 font-semibold text-sm ml-2">/ {plan.period}</span>
+                    </div>
+
+                    <ul className="space-y-2.5 mb-6">
+                      {plan.features.map((feature, i) => {
+                        const premiumIcon = <PremiumFeatureIcon feature={feature} className="w-5 h-5 mr-3 mt-0 flex-shrink-0" />;
+                        return (
+                          <li key={i} className="flex items-start">
+                            {premiumIcon ? premiumIcon : (
+                              <div className="bg-indigo-50 text-indigo-500 p-0.5 rounded-full mr-2.5 mt-0.5 flex-shrink-0">
+                                <Check className="w-3 h-3" />
+                              </div>
+                            )}
+                            <span className={`text-xs sm:text-sm leading-relaxed ${premiumIcon ? 'text-slate-900 font-bold' : 'text-slate-600'}`}>{feature}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+
+                  {plan.alternative && (
+                    <div className="mb-5 p-3 bg-slate-50 border border-slate-100 rounded-xl text-left">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">The Alternative</p>
+                      <p className="text-slate-600 text-[11px] leading-normal italic">{plan.alternative}</p>
+                    </div>
+                  )}
+
+                  <Link 
+                    to={`/onboarding?plan=${plan.id}`}
+                    onClick={() => trackInitiateCheckout(plan.id)}
+                    className="w-full inline-flex items-center justify-center py-3 px-6 rounded-xl font-bold text-sm bg-slate-900 text-white hover:bg-slate-800 shadow transition"
+                  >
+                    {plan.cta}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Professional Services — moved to own section */}
+          <div className="mt-20">
+            <div className="text-center mb-12">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 mb-3 border border-amber-200">
+                <Zap className="w-3.5 h-3.5 mr-1.5 text-amber-500" /> One-Time Services
+              </span>
+              <h3 className="text-xl font-bold text-slate-800">Need a Single Build?</h3>
+              <p className="text-sm text-slate-500 mt-1">No subscription required. Start with a one-time audit or custom integration.</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {/* Audit */}
+              <div className="bg-white border-2 border-indigo-100 rounded-2xl p-8 shadow-sm flex flex-col justify-between hover:border-indigo-300 transition">
+                <div>
+                  <div className="bg-indigo-50 text-indigo-500 w-10 h-10 rounded-lg flex items-center justify-center mb-6">
+                    <Activity className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-900 mb-2">Automation Audit</h4>
+                  <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                    A 60-minute deep dive into your current tech stack. We'll identify the "Manual Work Tax" 
+                    and deliver a prioritized automation roadmap with ROI estimates.
+                  </p>
+                  <div className="text-2xl font-black text-slate-900 mb-6">$299 <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">/ one-time</span></div>
+                </div>
+                <button
+                  onClick={(e) => handleNavigate('/audit', e, 'Bottom - Book Your Audit')}
+                  className="w-full inline-flex items-center justify-center py-3 px-6 rounded-xl font-bold text-sm bg-indigo-500 text-white hover:bg-indigo-600 shadow transition cursor-pointer"
+                >
+                  <Activity className="w-4 h-4 mr-2" /> Book Your Audit
+                </button>
+              </div>
+              {/* Single Build */}
+              <div className="bg-white border-2 border-teal-100 rounded-2xl p-8 shadow-sm flex flex-col justify-between hover:border-teal-300 transition">
+                <div>
+                  <div className="bg-teal-50 text-teal-600 w-10 h-10 rounded-lg flex items-center justify-center mb-6">
+                    <Zap className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-xl font-bold text-slate-900 mb-2">Custom Workflow Build</h4>
+                  <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                    Need one high-complexity workflow? We design, build, and deploy a single custom integration with 30 days of support.
+                  </p>
+                  <div className="text-2xl font-black text-slate-900 mb-6">$1,499 <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">/ one-time</span></div>
+                </div>
+                <button
+                  onClick={(e) => handleNavigate('/onboarding?product=single-integration', e, 'Bottom - Request Build')}
+                  className="w-full inline-flex items-center justify-center py-3 px-6 rounded-xl font-bold text-sm bg-teal-500 text-white hover:bg-teal-600 shadow transition cursor-pointer"
+                >
+                  <Zap className="w-4 h-4 mr-2" /> Request a Build
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust badges */}
+          <div className="mt-16 flex flex-wrap justify-center items-center gap-6">
+            <SecureBadge />
+            <SlaBadge />
+            <EngineerBadge />
+            <div className="flex items-center text-slate-500 text-sm font-semibold">
+              <RefreshCw className="w-4 h-4 mr-1.5 text-emerald-500" /> Cancel or pause anytime
+            </div>
           </div>
         </div>
       </section>

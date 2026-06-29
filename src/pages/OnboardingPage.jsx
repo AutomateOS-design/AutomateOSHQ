@@ -85,6 +85,10 @@ export default function OnboardingPage() {
       setClientId(cId);
 
       // Create the client in the database first
+      const utm_source = searchParams.get('utm_source') || '';
+      const utm_medium = searchParams.get('utm_medium') || '';
+      const utm_campaign = searchParams.get('utm_campaign') || '';
+
       await createClient({
         id: cId,
         companyName: formData.companyName || 'New Business Ltd',
@@ -93,6 +97,9 @@ export default function OnboardingPage() {
         phone: formData.phone || '',
         plan: selectedPlan,
         status: 'Active',
+        utm_source,
+        utm_medium,
+        utm_campaign,
         metrics: {
           hoursSaved: 0,
           executionsMTD: 0,
@@ -142,7 +149,11 @@ export default function OnboardingPage() {
       const cId = clientId || sessionStorage.getItem('automateos_current_client_id');
       if (!cId) { setCheckoutError('No client ID found. Please try again.'); setSubmitting(false); return; }
       
-      const result = await createCheckoutSession(cId, selectedPlan);
+      const utm_source = searchParams.get('utm_source') || '';
+      const utm_medium = searchParams.get('utm_medium') || '';
+      const utm_campaign = searchParams.get('utm_campaign') || '';
+      
+      const result = await createCheckoutSession(cId, selectedPlan, { utm_source, utm_medium, utm_campaign });
       
       // Track checkout start
       if (window.gtag) {
@@ -438,6 +449,13 @@ export default function OnboardingPage() {
                     )}
                   </button>
 
+                  {/* Trust markers under the payment button */}
+                  <div className="flex flex-wrap justify-center gap-3 text-[10px] font-semibold text-slate-400 pt-1">
+                    <span className="inline-flex items-center gap-1"><Lock className="w-3 h-3 text-emerald-500" /> 100% secure</span>
+                    <span className="inline-flex items-center gap-1"><RefreshCw className="w-3 h-3 text-emerald-500" /> Cancel anytime</span>
+                    <span className="inline-flex items-center gap-1"><Shield className="w-3 h-3 text-emerald-500" /> 48h response</span>
+                  </div>
+
                   <div className="text-center border-t border-slate-100 pt-4">
                     <p className="text-xs text-slate-400 mb-3 font-semibold">Already completed your payment?</p>
                     <button
@@ -491,7 +509,7 @@ export default function OnboardingPage() {
 
                 <div className="pt-2">
                   <button onClick={handleCompleteOnboarding}
-                    disabled={!formData.password || !formData.slackConnected || submitting}
+                    disabled={!formData.password || submitting}
                     className="w-full inline-flex items-center justify-center py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-indigo-500 hover:bg-indigo-600 shadow transition disabled:opacity-50 disabled:cursor-not-allowed">
                     {submitting ? (
                       <><RefreshCw className="w-4 h-4 mr-1.5 animate-spin" /> Loading Dashboard...</>

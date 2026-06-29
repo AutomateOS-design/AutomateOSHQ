@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, ArrowRight, CheckCircle2, Download } from 'lucide-react';
+import { Zap, ArrowRight, CheckCircle2, Download, Menu, X, ChevronDown } from 'lucide-react';
 
 const workflows = [
   {
@@ -74,25 +74,65 @@ const workflows = [
 ];
 
 export default function LeadMagnetPage() {
+  const [activeWorkflow, setActiveWorkflow] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 100);
+      
+      // Determine which workflow is in view
+      const sections = document.querySelectorAll('[data-workflow-id]');
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top < window.innerHeight / 2 && rect.bottom > window.innerHeight / 2) {
+          setActiveWorkflow(parseInt(section.dataset.workflowId));
+        }
+      });
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Print-friendly styles */}
       <style>{`
         @media print {
           .no-print { display: none !important; }
-          .print-page { break-before: page; }
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          .workflow-card { break-inside: avoid; page-break-inside: avoid; padding-top: 1rem; }
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 11px; }
+          .workflow-svg { max-width: 100%; }
         }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
       `}</style>
 
       {/* Floating Download/CTA Bar */}
-      <div className="no-print sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+      <div className={`no-print sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b transition-all duration-300 ${scrolled ? 'border-indigo-100 shadow-sm' : 'border-slate-200'}`}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-teal-500 rounded-lg flex items-center justify-center">
-              <Zap className="w-3.5 h-3.5 text-white" />
-            </div>
-            <span className="text-sm font-bold text-slate-900">AutomateOS</span>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-teal-500 rounded-lg flex items-center justify-center">
+                <Zap className="w-3.5 h-3.5 text-white" />
+              </div>
+              <span className="text-sm font-bold text-slate-900 hidden sm:inline">AutomateOS</span>
+            </Link>
+            {/* Progress indicator */}
+            {activeWorkflow > 0 && (
+              <span className="text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-100 animate-fade-in">
+                Workflow {activeWorkflow} of 5
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <button 
@@ -102,10 +142,10 @@ export default function LeadMagnetPage() {
               <Download className="w-3.5 h-3.5" /> Save as PDF
             </button>
             <Link
-              to="/"
+              to="/audit"
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-xl text-xs shadow-sm transition"
             >
-              View Plans <ArrowRight className="w-3.5 h-3.5" />
+              Book Audit <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
@@ -152,8 +192,8 @@ export default function LeadMagnetPage() {
       {/* Workflow Cards */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 space-y-16">
         {workflows.map((wf, index) => (
-          <div key={wf.id} className={`${index > 0 ? 'pt-16 border-t border-slate-200' : ''}`}>
-            <div className="flex items-center gap-3 mb-6">
+          <div key={wf.id} data-workflow-id={wf.id} className={`workflow-card ${index > 0 ? 'pt-16 border-t border-slate-200' : ''}`}>
+            <div className="flex items-center gap-3 mb-6 stagger-1 animate-fade-in">
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-sm shadow-lg shadow-indigo-500/20">
                 {wf.id}
               </div>
@@ -164,7 +204,7 @@ export default function LeadMagnetPage() {
             </div>
 
             {/* Problem */}
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl">
+            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl hover:bg-red-50/80 transition-colors stagger-2 animate-fade-in">
               <div className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                   <span className="text-red-600 text-xs font-bold">!</span>
@@ -177,18 +217,18 @@ export default function LeadMagnetPage() {
             </div>
 
             {/* Solution Flow Diagram */}
-            <div className="mb-6">
+            <div className="mb-6 stagger-3 animate-fade-in">
               <img 
                 src={wf.svg} 
                 alt={`Workflow ${wf.id} diagram`}
-                className="w-full max-w-4xl h-auto rounded-xl"
+                className="w-full max-w-4xl h-auto rounded-xl workflow-svg"
               />
             </div>
 
             {/* Solution Steps */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 stagger-3 animate-fade-in">
               {wf.solution.map((step, i) => (
-                <div key={i} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <div key={i} className="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 transition-all duration-200 hover:border-indigo-200 hover:bg-white hover:shadow-sm">
                   <div className="w-5 h-5 bg-indigo-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
                     <span className="text-[9px] font-bold text-indigo-600">{i + 1}</span>
                   </div>
@@ -198,7 +238,7 @@ export default function LeadMagnetPage() {
             </div>
 
             {/* Impact */}
-            <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl">
+            <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl hover:bg-emerald-50/80 transition-colors stagger-4 animate-fade-in">
               <div className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                 <div>
@@ -209,6 +249,82 @@ export default function LeadMagnetPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Interactive Worksheet Section */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16">
+        <div className="bg-indigo-900 rounded-[2.5rem] p-8 sm:p-16 text-white shadow-2xl relative overflow-hidden">
+          {/* Abstract background blobs */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/20 blur-3xl rounded-full -mr-32 -mt-32"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-500/20 blur-3xl rounded-full -ml-32 -mb-32"></div>
+          
+          <div className="relative z-10 max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-white/10 text-indigo-200 border border-white/20 mb-6">
+                5-Minute Audit
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">Interactive Worksheet: Identify Your Top 3 Bottlenecks</h2>
+              <p className="text-indigo-200 text-lg">Take 5 minutes to audit your current operations. Answer these questions to see where automation will have the highest impact today.</p>
+            </div>
+
+            <div className="space-y-10">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-sm">1</span>
+                  The "Repetitive Task" Audit
+                </h3>
+                <p className="text-indigo-200 text-sm mb-6">List three tasks that you or your team do at least 5 times per week that take more than 10 minutes each.</p>
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="border-b border-white/20 py-2 text-white/40 italic text-sm">
+                      Task {i}: _________________________________________________
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-sm">2</span>
+                  The "Human Error" Check
+                </h3>
+                <p className="text-indigo-200 text-sm mb-6">What is the one thing that, if a human forgets to do it, causes the most stress or financial loss?</p>
+                <div className="border-b border-white/20 py-2 text-white/40 italic text-sm">
+                  Critical Task: _____________________________________________
+                </div>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8">
+                <h3 className="text-xl font-bold mb-4 flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-sm">3</span>
+                  The "Wait Time" Analysis
+                </h3>
+                <p className="text-indigo-200 text-sm mb-6">Where do projects currently sit idle waiting for a human to "push the button"? (e.g. client approval, task assignment)</p>
+                <div className="border-b border-white/20 py-2 text-white/40 italic text-sm">
+                  Bottleneck: ________________________________________
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-16 text-center bg-indigo-950/50 rounded-3xl p-8 border border-white/10">
+              <h3 className="text-2xl font-bold mb-4">Your Automation Score</h3>
+              <p className="text-indigo-200 mb-8 leading-relaxed">
+                If you listed at least **one task** in each step, you are currently losing at least **10 hours a week** to manual work.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link
+                  to="/audit"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-indigo-900 hover:bg-indigo-50 font-bold rounded-xl shadow-lg transition"
+                >
+                  Book Your $299 Audit <ArrowRight className="w-4 h-4" />
+                </Link>
+                <p className="text-xs text-indigo-300 sm:max-w-[200px] text-left">
+                  The $299 fee is 100% credited back if you start any subscription.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Conclusion / CTA */}

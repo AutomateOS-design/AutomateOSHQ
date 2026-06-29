@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" width="120" height="40">
+  <!-- HubSpot monochrome logo -->
+  <g fill="#94A3B8">
+    <circle cx="10" cy="20" r="8" opacity="0.85"/>
+    <path d="M18 20h8" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+    <circle cx="30" cy="20" r="3" fill="#94A3B8" opacity="0.55"/>
+  </g>
+  <text x="38" y="26" font-family="'Inter',sans-serif" font-size="13" font-weight="700" fill="#94A3B8" letter-spacing="-0.3">HubSpot</text>
+</svg>

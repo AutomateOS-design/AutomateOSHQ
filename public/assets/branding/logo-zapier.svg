@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 40" width="120" height="40">
+  <!-- Zapier monochrome logo mark -->
+  <g fill="#94A3B8">
+    <path d="M20 4h8l-8 16h8l-8 16h-8l8-16h-8l8-16z" opacity="0.85"/>
+  </g>
+  <text x="36" y="26" font-family="'Inter',sans-serif" font-size="14" font-weight="700" fill="#94A3B8" letter-spacing="-0.3">Zapier</text>
+</svg>

@@ -7,6 +7,8 @@ import { Resend } from 'resend';
 let resend = null;
 let initialized = false;
 
+const FROM_EMAIL = process.env.FROM_EMAIL || 'AutomateOS <onboarding@resend.dev>';
+
 /**
  * Initialize the Resend client. Must be called with a valid API key.
  * @param {string} apiKey - Resend API key (starts with 're_')
@@ -47,11 +49,11 @@ export async function sendLeadMagnet({ firstName, email, agencyName }) {
     return { success: false, message: 'Email delivery not initialized (no RESEND_API_KEY)' };
   }
 
-  const guideUrl = process.env.SITE_URL || 'https://automateos-hq.vercel.app/lead-magnet';
+  const guideUrl = process.env.SITE_URL || 'https://automateoshq.com/lead-magnet';
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'AutomateOS <onboarding@resend.dev>',
+      from: FROM_EMAIL,
       to: [email],
       subject: '[Download] Your Agency Automation Guide is here',
       html: `
@@ -81,7 +83,7 @@ export async function sendLeadMagnet({ firstName, email, agencyName }) {
             Most agencies plateau because of a <strong>Manual Work Tax</strong> — the hours your team spends copy-pasting data instead of driving client results.
           </p>
           <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
-            If you'd rather have an elite operations team build and maintain these workflows for a flat monthly fee, <a href="https://automateos-hq.vercel.app" style="color: #6366f1; font-weight: 600;">check out our plans</a>.
+            If you'd rather have an elite operations team build and maintain these workflows for a flat monthly fee, <a href="https://automateoshq.com" style="color: #6366f1; font-weight: 600;">check out our plans</a>.
           </p>
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
           <p style="color: #94a3b8; font-size: 12px; margin: 0;">
@@ -106,6 +108,138 @@ export async function sendLeadMagnet({ firstName, email, agencyName }) {
 }
 
 /**
+ * Send a nurture email to a lead.
+ * @param {object} params
+ * @param {string} params.email - Lead's email
+ * @param {string} params.firstName - Lead's name
+ * @param {string} params.agencyName - Lead's agency name
+ * @param {number} params.day - Which day in the nurture sequence (2-5)
+ * @returns {Promise<{success: boolean, message: string}>}
+ */
+export async function sendNurtureEmail({ email, firstName, agencyName, day }) {
+  if (!initialized || !resend) {
+    return { success: false, message: 'Email delivery not initialized' };
+  }
+
+  const nurtureEmails = {
+    2: {
+      subject: 'The 20% "Manual Work Tax" (and how to stop paying it) 📉',
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px;">
+          <h2 style="font-size: 20px; color: #1e293b; margin-bottom: 16px;">Hi ${firstName}, quick question for you...</h2>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+            How much of your team's day is spent moving data between spreadsheets, chasing content approvals, or manually creating invoices?
+          </p>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+            Most agencies are unknowingly paying a <strong>20% revenue tax</strong> due to manual work. It’s the invisible fee you pay every month that keeps your margins thin.
+          </p>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+            We just published a deep dive on how to identify and recover this tax:
+          </p>
+          <div style="text-align: center; margin: 28px 0;">
+            <a href="https://automateoshq.com/resources/the-hidden-tax" style="display: inline-block; padding: 14px 28px; background: #6366f1; color: #fff; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 12px;">
+              Read: Why Manual Work is Killing Your Margins →
+            </a>
+          </div>
+        </div>
+      `
+    },
+    3: {
+      subject: '10 Hours Saved (The ROI of an hour) ⏱️',
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px;">
+          <h2 style="font-size: 20px; color: #1e293b; margin-bottom: 16px;">The math is simple, ${firstName}.</h2>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+            When founders think about automation, they often focus on the "cool" tech. But at the end of the day, it's a financial decision. 
+          </p>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+            Every hour we save your team is an hour that can be spent on high-level strategy or closing more deals.
+          </p>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+            We broke down the exact math on how to calculate the ROI of automation:
+          </p>
+          <div style="text-align: center; margin: 28px 0;">
+            <a href="https://automateoshq.com/resources/roi-of-automation" style="display: inline-block; padding: 14px 28px; background: #6366f1; color: #fff; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 12px;">
+              Read: A CFO's Perspective on Automation ROI →
+            </a>
+          </div>
+        </div>
+      `
+    },
+    4: {
+      subject: 'How one agency recovered 15 hours/week on onboarding 🚀',
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px;">
+          <h2 style="font-size: 20px; color: #1e293b; margin-bottom: 16px;">"The best hire I never made."</h2>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+            One of the biggest bottlenecks for any agency is the "client kickoff."
+          </p>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+            We recently helped a creative agency automate their entire onboarding loop. Result? <strong>15 hours/week saved</strong> and a kickoff time that went from 3 days to 15 minutes.
+          </p>
+          <div style="text-align: center; margin: 28px 0;">
+            <a href="https://automateoshq.com/resources/case-study-onboarding" style="display: inline-block; padding: 14px 28px; background: #6366f1; color: #fff; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 12px;">
+              Read the Full Case Study →
+            </a>
+          </div>
+        </div>
+      `
+    },
+    5: {
+      subject: `A prioritized automation roadmap for ${agencyName || 'your agency'}? 🗺️`,
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 24px;">
+          <h2 style="font-size: 20px; color: #1e293b; margin-bottom: 16px;">Where do you start, ${firstName}?</h2>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+            You've seen the workflows. You know the ROI. Now it's time to build your own roadmap.
+          </p>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+            If you don't have the time to build these systems yourself, we have a shortcut: The <strong>$299 Automation Audit.</strong>
+          </p>
+          <p style="color: #475569; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+            It’s a 60-minute deep dive where we map your entire stack, identify your 3 biggest bottlenecks, and give you a step-by-step roadmap to fix them.
+          </p>
+          <div style="text-align: center; margin: 28px 0;">
+            <a href="https://automateoshq.com/audit" style="display: inline-block; padding: 14px 28px; background: #6366f1; color: #fff; font-size: 15px; font-weight: 600; text-decoration: none; border-radius: 12px;">
+              Book Your Audit for $299 →
+            </a>
+          </div>
+          <p style="color: #94a3b8; font-size: 12px; margin-top: 24px;">
+            Note: If you decide to join a subscription plan after your audit, the full $299 cost is credited back to your first month.
+          </p>
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+          <p style="color: #94a3b8; font-size: 11px; text-align: center;">
+            AutomateOSHQ &middot; <a href="mailto:unsubscribe@ctomail.io?subject=Unsubscribe" style="color: #94a3b8;">Unsubscribe</a>
+          </p>
+        </div>
+      `
+    }
+  };
+
+  const nurtureContent = nurtureEmails[day];
+  if (!nurtureContent) return { success: false, message: `Invalid nurture day: ${day}` };
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: [email],
+      subject: nurtureContent.subject,
+      html: nurtureContent.html
+    });
+
+    if (error) {
+      console.error(`❌ Nurture email error (Day ${day}) for ${email}:`, error);
+      return { success: false, message: error.message };
+    }
+
+    return { success: true, message: `Day ${day} nurture email sent`, id: data?.id };
+  } catch (err) {
+    console.error(`❌ Failed to send nurture email to ${email}:`, err.message);
+    return { success: false, message: err.message };
+  }
+}
+
+/**
  * Send a product delivery email with download links for a one-time purchase.
  * @param {object} params
  * @param {string} params.email - Buyer's email
@@ -123,16 +257,16 @@ export async function sendProductDelivery({ email, name, productName, productPri
   const priceDisplay = productPrice ? `${(productPrice / 100).toFixed(0)}` : '';
 
   const downloadUrls = {
-    'Template Pack (Lead Gen Essentials)': 'https://automateos.io/downloads/template-pack-lead-gen.pdf',
-    'Automation Audit (One-time)': 'https://automateos.io/downloads/automation-audit-report.pdf',
-    'Single Integration Build': 'https://automateos.io/downloads/single-integration-guide.pdf',
+    'Template Pack (Lead Gen Essentials)': 'https://automateoshq.com/downloads/template-pack-lead-gen.pdf',
+    'Automation Audit (One-time)': 'https://automateoshq.com/downloads/automation-audit-report.pdf',
+    'Single Integration Build': 'https://automateoshq.com/downloads/single-integration-guide.pdf',
   };
 
-  const downloadLink = downloadUrls[productTitle] || 'https://automateos.io/lead-magnet';
+  const downloadLink = downloadUrls[productTitle] || 'https://automateoshq.com/lead-magnet';
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'AutomateOS <onboarding@resend.dev>',
+      from: FROM_EMAIL,
       to: [email],
       subject: `📥 Your Download: ${productTitle} is ready!`,
       html: `
